@@ -10,19 +10,19 @@ export interface IVerifyOTPResponse {
 	error?: string
 }
 
-export const loginUser = async (phone: string): Promise<ILoginResponse> => {
+export const loginUser = async (username: string, password: string): Promise<ILoginResponse> => {
 	await new Promise(resolve => setTimeout(resolve, 1000))
 
-	if (phone === '+71111111111') {
+	if (username === 'server_error') {
 		throw new Error('Сервер недоступен. Попробуйте позже.')
 	}
-	if (phone === '+72222222222') {
+	if (username === 'wrong_data' || password === 'wrong_data') {
 		return { success: false, error: 'Неверное имя пользователя или пароль.' }
 	}
-	if (phone === '+73333333333') {
+	if (username === 'ban') {
 		return { success: false, error: 'Пользователь заблокирован.' }
 	}
-	if (phone === '+74444444444') {
+	if (username === 'requests') {
 		return { success: false, error: 'Слишком много запросов, подождите.' }
 	}
 
@@ -34,11 +34,11 @@ export const loginUser = async (phone: string): Promise<ILoginResponse> => {
 
 export const verifyOTP = async (otp: string): Promise<IVerifyOTPResponse> => {
 	await new Promise(resolve => setTimeout(resolve, 1000))
-	if (otp === '1111') {
+	if (otp === '131311') {
 		return { success: true, token: 'mock_token_131311' }
-	} else if (otp === '2222') {
+	} else if (otp === '111111') {
 		throw new Error('Время действия кода истекло.')
-	} else if (otp === '3333') {
+	} else if (otp === '222222') {
 		throw new Error('Сервер недоступен. Попробуйте позже.')
 	} else {
 		return { success: false, error: 'Неверный код. Попробуйте ещё раз.' }

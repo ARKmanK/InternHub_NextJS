@@ -1,13 +1,7 @@
-import LoginForm from '@/components/LoginForm'
+import HomePage from '@/pages/ui/HomePage'
 
-const HomePage = () => {
-	return (
-		<section className='h-screen'>
-			<div className='flex justify-center mt-60'>
-				<LoginForm />
-			</div>
-		</section>
-	)
+const MainPage = () => {
+	return <HomePage />
 }
 
-export default HomePage
+export default MainPage

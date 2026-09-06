@@ -32,9 +32,7 @@ export default function RootLayout({
 	return (
 		<html lang='ru' suppressHydrationWarning>
 			<body className={`font-nimbus  antialiased`}>
-				<main className='w-full min-h-screen flex flex-col items-center'>
-					<StoreProvider>{children}</StoreProvider>
-				</main>
+				<main className='w-full min-h-screen flex flex-col items-center'>{children}</main>
 			</body>
 		</html>
 	)

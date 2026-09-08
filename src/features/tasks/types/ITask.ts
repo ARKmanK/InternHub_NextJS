@@ -9,4 +9,5 @@ export interface ITask {
 	employerId: number
 	createdAt: string
 	zipFileURL?: string
+	tags?: []
 }

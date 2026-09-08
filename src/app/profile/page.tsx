@@ -1,7 +1,5 @@
-import UserPage from '@/pages/ui/userPage/UserPage'
+import ProfilePage from '@/pages/ui/profilePage/ProfilePage'
 
-const ProfilePage = () => {
-	return <UserPage />
+export default function PrfPage() {
+	return <ProfilePage />
 }
-
-export default ProfilePage

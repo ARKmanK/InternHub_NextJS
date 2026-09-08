@@ -10,6 +10,14 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import VerificationForm from './VerificationForm'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectSeparator,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
 
 const formSchema = z.object({
 	companyName: z
@@ -31,6 +39,31 @@ const formSchema = z.object({
 	password: z.string().min(8, {
 		message: 'Password must be at least 8 characters.',
 	}),
+	name: z
+		.string()
+		.min(2, {
+			message: 'Username must be at least 3 characters.',
+		})
+		.max(20, {
+			message: 'Username can have up to 20 characters',
+		}),
+	surname: z
+		.string()
+		.min(2, {
+			message: 'Username must be at least 3 characters.',
+		})
+		.max(20, {
+			message: 'Username can have up to 20 characters',
+		}),
+	group: z
+		.string()
+		.min(2, {
+			message: 'Username must be at least 3 characters.',
+		})
+		.max(20, {
+			message: 'Username can have up to 20 characters',
+		}),
+	grade: z.string(), //------------------------Text------------------------//
 })
 
 function LoginForm() {
@@ -79,59 +112,119 @@ function LoginForm() {
 				<TabsTrigger value='reg'>Registration</TabsTrigger>
 			</TabsList>
 			<TabsContent value='login'>
-				<Card>
-					<CardHeader></CardHeader>
-					<CardContent>
-						<form id='loginForm' onSubmit={form.handleSubmit(onSubmit)}>
-							<Controller
-								name='mail'
-								control={form.control}
-								render={({ field, fieldState }) => (
-									<Field data-invalid={fieldState.invalid}>
-										<FieldLabel htmlFor='form-rhf-demo-title'>Email</FieldLabel>
-										<Input
-											{...field}
-											id='form-rhf-demo-title'
-											type='email'
-											aria-invalid={fieldState.invalid}
-											placeholder='Login button not working on mobile'
-											autoComplete='off'
-										/>
-										{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-									</Field>
-								)}
-							/>
-							<Controller
-								name='password'
-								control={form.control}
-								render={({ field, fieldState }) => (
-									<Field data-invalid={fieldState.invalid}>
-										<FieldLabel htmlFor='form-rhf-demo-title'>Пароль</FieldLabel>
-										<Input
-											{...field}
-											id='form-rhf-demo-title'
-											type='password'
-											aria-invalid={fieldState.invalid}
-											placeholder='Login button not working on mobile'
-											autoComplete='off'
-										/>
-										{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-									</Field>
-								)}
-							/>
-						</form>
-					</CardContent>
-					<CardFooter>
-						<Field orientation={'horizontal'}>
-							<Button type='button' onClick={() => form.reset()}>
-								Reset
-							</Button>
-							<Button type='submit' form='loginForm'>
-								Submit
-							</Button>
-						</Field>
-					</CardFooter>
-				</Card>
+				<Tabs defaultValue='user' className='w-100'>
+					<TabsList></TabsList>
+					<TabsContent value='user'>
+						<Card>
+							<CardHeader></CardHeader>
+							<CardContent>
+								<form id='loginForm' onSubmit={form.handleSubmit(onSubmit)}>
+									<Controller
+										name='mail'
+										control={form.control}
+										render={({ field, fieldState }) => (
+											<Field data-invalid={fieldState.invalid}>
+												<FieldLabel htmlFor='login-form1-mail'>Email</FieldLabel>
+												<Input
+													{...field}
+													id='login-form1-mail'
+													type='email'
+													aria-invalid={fieldState.invalid}
+													placeholder='Login button not working on mobile'
+													autoComplete='off'
+												/>
+												{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+											</Field>
+										)}
+									/>
+									<Controller
+										name='password'
+										control={form.control}
+										render={({ field, fieldState }) => (
+											<Field data-invalid={fieldState.invalid}>
+												<FieldLabel htmlFor='login-form1-password'>Пароль</FieldLabel>
+												<Input
+													{...field}
+													id='login-form1-password'
+													type='password'
+													aria-invalid={fieldState.invalid}
+													placeholder='Login button not working on mobile'
+													autoComplete='off'
+												/>
+												{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+											</Field>
+										)}
+									/>
+								</form>
+							</CardContent>
+							<CardFooter>
+								<Field orientation={'horizontal'}>
+									<Button type='button' onClick={() => form.reset()}>
+										Reset
+									</Button>
+									<Button type='submit' form='loginForm'>
+										Submit
+									</Button>
+								</Field>
+							</CardFooter>
+						</Card>
+					</TabsContent>
+					<TabsContent value='company'>
+						<Card>
+							<CardHeader></CardHeader>
+							<CardContent>
+								<form id='loginForm' onSubmit={form.handleSubmit(onSubmit)}>
+									<Controller
+										name='mail'
+										control={form.control}
+										render={({ field, fieldState }) => (
+											<Field data-invalid={fieldState.invalid}>
+												<FieldLabel htmlFor='login-form2-mail'>Email</FieldLabel>
+												<Input
+													{...field}
+													id='login-form2-mail'
+													type='email'
+													aria-invalid={fieldState.invalid}
+													placeholder='Login button not working on mobile'
+													autoComplete='off'
+												/>
+												{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+											</Field>
+										)}
+									/>
+									<Controller
+										name='password'
+										control={form.control}
+										render={({ field, fieldState }) => (
+											<Field data-invalid={fieldState.invalid}>
+												<FieldLabel htmlFor='login-form2-password'>Пароль</FieldLabel>
+												<Input
+													{...field}
+													id='login-form2-password'
+													type='password'
+													aria-invalid={fieldState.invalid}
+													placeholder='Login button not working on mobile'
+													autoComplete='off'
+												/>
+												{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+											</Field>
+										)}
+									/>
+								</form>
+							</CardContent>
+							<CardFooter>
+								<Field orientation={'horizontal'}>
+									<Button type='button' onClick={() => form.reset()}>
+										Reset
+									</Button>
+									<Button type='submit' form='loginForm'>
+										Submit
+									</Button>
+								</Field>
+							</CardFooter>
+						</Card>
+					</TabsContent>
+				</Tabs>
 			</TabsContent>
 			<TabsContent value='reg'>
 				<Tabs defaultValue='user' className='w-100'>
@@ -149,10 +242,10 @@ function LoginForm() {
 										control={form.control}
 										render={({ field, fieldState }) => (
 											<Field data-invalid={fieldState.invalid}>
-												<FieldLabel htmlFor='form-rhf-demo-title'>Email</FieldLabel>
+												<FieldLabel htmlFor='reg-form1-mail'>Email</FieldLabel>
 												<Input
 													{...field}
-													id='form-rhf-demo-title'
+													id='reg-form1-mail'
 													type='email'
 													aria-invalid={fieldState.invalid}
 													placeholder='Login button not working on mobile'
@@ -167,15 +260,94 @@ function LoginForm() {
 										control={form.control}
 										render={({ field, fieldState }) => (
 											<Field data-invalid={fieldState.invalid}>
-												<FieldLabel htmlFor='form-rhf-demo-title'>Пароль</FieldLabel>
+												<FieldLabel htmlFor='reg-form1-password'>Пароль</FieldLabel>
 												<Input
 													{...field}
-													id='form-rhf-demo-title'
+													id='reg-form1-password'
 													type='password'
 													aria-invalid={fieldState.invalid}
 													placeholder='Login button not working on mobile'
 													autoComplete='off'
 												/>
+												{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+											</Field>
+										)}
+									/>
+									<Controller
+										name='name'
+										control={form.control}
+										render={({ field, fieldState }) => (
+											<Field data-invalid={fieldState.invalid}>
+												<FieldLabel htmlFor='reg-form1-name'>Name</FieldLabel>
+												<Input
+													{...field}
+													id='reg-form1-name'
+													aria-invalid={fieldState.invalid}
+													placeholder='Login button not working on mobile'
+													autoComplete='off'
+												/>
+												{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+											</Field>
+										)}
+									/>
+									<Controller
+										name='surname'
+										control={form.control}
+										render={({ field, fieldState }) => (
+											<Field data-invalid={fieldState.invalid}>
+												<FieldLabel htmlFor='reg-form1-surname'>Surname</FieldLabel>
+												<Input
+													{...field}
+													id='reg-form1-surname'
+													aria-invalid={fieldState.invalid}
+													placeholder='Login button not working on mobile'
+													autoComplete='off'
+												/>
+												{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+											</Field>
+										)}
+									/>
+									<Controller
+										name='group'
+										control={form.control}
+										render={({ field, fieldState }) => (
+											<Field data-invalid={fieldState.invalid}>
+												<FieldLabel htmlFor='reg-form1-group'>Group</FieldLabel>
+												<Input
+													{...field}
+													id='reg-form1-group'
+													aria-invalid={fieldState.invalid}
+													placeholder='Login button not working on mobile'
+													autoComplete='off'
+												/>
+												{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+											</Field>
+										)}
+									/>
+									<Controller
+										name='grade'
+										control={form.control}
+										render={({ field, fieldState }) => (
+											<Field data-invalid={fieldState.invalid}>
+												<FieldLabel htmlFor='reg-form1-grade'>Grade</FieldLabel>
+												<Select value={field.value} onValueChange={field.onChange}>
+													<SelectTrigger
+														id='reg-form1-grade'
+														aria-invalid={fieldState.invalid}
+														className='min-w-30'
+													>
+														<SelectValue placeholder='Select' />
+													</SelectTrigger>
+													<SelectContent position='item-aligned'>
+														<SelectItem value='auto'>Auto</SelectItem>
+														<SelectSeparator />
+														{['1', '2', '3', '4'].map((_, index) => (
+															<SelectItem key={index} value={_}>
+																{_}
+															</SelectItem>
+														))}
+													</SelectContent>
+												</Select>
 												{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
 											</Field>
 										)}
@@ -204,10 +376,10 @@ function LoginForm() {
 										control={form.control}
 										render={({ field, fieldState }) => (
 											<Field data-invalid={fieldState.invalid}>
-												<FieldLabel htmlFor='form-rhf-demo-title'>Email</FieldLabel>
+												<FieldLabel htmlFor='reg-form2-companyname'>Email</FieldLabel>
 												<Input
 													{...field}
-													id='form-rhf-demo-title'
+													id='reg-form2-companyname'
 													aria-invalid={fieldState.invalid}
 													placeholder='Login button not working on mobile'
 													autoComplete='off'
@@ -221,10 +393,10 @@ function LoginForm() {
 										control={form.control}
 										render={({ field, fieldState }) => (
 											<Field data-invalid={fieldState.invalid}>
-												<FieldLabel htmlFor='form-rhf-demo-title'>Email</FieldLabel>
+												<FieldLabel htmlFor='reg-form2-mail'>Email</FieldLabel>
 												<Input
 													{...field}
-													id='form-rhf-demo-title'
+													id='reg-form2-mail'
 													type='email'
 													aria-invalid={fieldState.invalid}
 													placeholder='Login button not working on mobile'
@@ -239,10 +411,10 @@ function LoginForm() {
 										control={form.control}
 										render={({ field, fieldState }) => (
 											<Field data-invalid={fieldState.invalid}>
-												<FieldLabel htmlFor='form-rhf-demo-title'>Пароль</FieldLabel>
+												<FieldLabel htmlFor='reg-form2-password'>Пароль</FieldLabel>
 												<Input
 													{...field}
-													id='form-rhf-demo-title'
+													id='reg-form2-password'
 													type='password'
 													aria-invalid={fieldState.invalid}
 													placeholder='Login button not working on mobile'

@@ -1,18 +1,37 @@
-import { Button } from '@/components/ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { MessageCircle } from 'lucide-react'
+'use client'
 
-export default function SupportChat() {
+import { useState } from 'react'
+import {
+	MessageScroller,
+	MessageScrollerButton,
+	MessageScrollerContent,
+	MessageScrollerProvider,
+	MessageScrollerViewport,
+} from '@/components/ui/message-scroller'
+import { Message } from '@/components/ui/message'
+
+export function SupportChat() {
+	const [messages, setMessages] = useState([
+		{ id: 1, role: 'user', content: 'Привет!' },
+		{ id: 2, role: 'assistant', content: 'Здравствуйте! Чем могу помочь?' },
+	])
+
 	return (
-		<div className='fixed bottom-30 right-4'>
-			<Popover>
-				<PopoverTrigger>
-					<Button variant='outline' className='rounded-full'>
-						<MessageCircle />
-					</Button>
-				</PopoverTrigger>
-				<PopoverContent className='w-80 h-120'></PopoverContent>
-			</Popover>
-		</div>
+		<MessageScrollerProvider>
+			<div className='h-96 w-full'>
+				<MessageScroller>
+					<MessageScrollerViewport>
+						<MessageScrollerContent>
+							{messages.map(msg => (
+								<Message key={msg.id} align={msg.role === 'user' ? 'end' : 'start'}>
+									{msg.content}
+								</Message>
+							))}
+						</MessageScrollerContent>
+					</MessageScrollerViewport>
+					<MessageScrollerButton />
+				</MessageScroller>
+			</div>
+		</MessageScrollerProvider>
 	)
 }

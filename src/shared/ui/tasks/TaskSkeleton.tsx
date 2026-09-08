@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
-export default function TasksListSkeleton() {
+export default function TaskSkeleton() {
 	return (
 		<Card>
 			<CardHeader>

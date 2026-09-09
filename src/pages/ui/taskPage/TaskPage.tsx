@@ -1,4 +1,4 @@
-import TaskCard from '@/features/tasks/ui/TaskCard'
+import TaskCard from '@/entities/task/ui/TaskCard'
 import { createServerClient } from '@/shared/api/supabaseClient'
 import TaskSkeleton from '@/shared/ui/tasks/TaskSkeleton'
 

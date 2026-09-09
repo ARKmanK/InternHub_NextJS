@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { ButtonGroup } from '@/components/ui/button-group'
 import { Field } from '@/components/ui/field'
+import Notifications from '@/features/notification/ui/Notifications'
 import { ArrowLeftIcon, User2 } from 'lucide-react'
 
 export default function UtilityBar() {
@@ -18,6 +19,7 @@ export default function UtilityBar() {
 						<User2 />
 						<Button variant='outline'>Profile</Button>
 					</Field>
+					<Notifications />
 				</ButtonGroup>
 			</ButtonGroup>
 		</div>

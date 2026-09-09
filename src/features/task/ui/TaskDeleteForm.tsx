@@ -19,11 +19,6 @@ import { createServerClient } from '@/shared/api/supabaseClient'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
-type TaskDeleteFormProps = {
-	taskId: number
-	taskTitle: string
-}
-
 const formSchema = (taskTitle: string) =>
 	z.object({
 		confirmText: z.string().refine(value => value === taskTitle, {
@@ -31,20 +26,25 @@ const formSchema = (taskTitle: string) =>
 		}),
 	})
 
-export default async function TaskDeleteForm({ taskId, taskTitle }: TaskDeleteFormProps) {
+type TaskDeleteFormProps = {
+	taskId: number
+}
+
+export default async function TaskDeleteForm({ taskId }: TaskDeleteFormProps) {
+	const supabase = await createServerClient()
+
+	const taskTitle = '1'
+
 	const form = useForm<z.infer<ReturnType<typeof formSchema>>>({
 		resolver: zodResolver(formSchema(taskTitle)),
 		mode: 'onSubmit',
 	})
 
-	const supabase = await createServerClient()
-
-	//------------------------Send data------------------------//
-
 	const isValid = form.formState.isValid
 
 	const onSubmit = async (data: { confirmText: string }) => {
 		//deleteTask(taskId)
+		//------------------------Send data------------------------//
 		form.reset()
 	}
 

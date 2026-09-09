@@ -1,5 +1,5 @@
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
-import { IDataTable } from '../types/dataTable'
+import { IDataTable } from '../../../entities/task/model/IDataTable'
 import { Button } from '@/components/ui/button'
 import { Popover } from '@/components/ui/popover'
 import { ButtonGroup } from '@/components/ui/button-group'

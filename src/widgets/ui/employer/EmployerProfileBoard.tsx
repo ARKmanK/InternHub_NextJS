@@ -1,4 +1,4 @@
-import TasksList from '@/features/tasks/ui/TasksList'
+import TasksList from '@/shared/ui/tasks/TasksList'
 import { createServerClient } from '@/shared/api/supabaseClient'
 import TaskSkeleton from '@/shared/ui/tasks/TaskSkeleton'
 

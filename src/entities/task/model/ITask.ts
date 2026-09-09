@@ -8,6 +8,6 @@ export interface ITask {
 	deadline?: string
 	employerId: number
 	createdAt: string
-	zipFileURL?: string
-	tags?: []
+	zipFileURL?: string | null
+	tags?: string[]
 }

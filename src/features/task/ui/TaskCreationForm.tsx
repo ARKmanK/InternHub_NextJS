@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -18,6 +18,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Button } from '@/components/ui/button'
 import { format } from 'date-fns'
 import { Calendar } from '@/components/ui/calendar'
+import FileUploader from '@/features/file/ui/FileUploader'
+import TagField from '@/features/tag/ui/TagField'
 
 const formSchema = z.object({
 	name: z
@@ -39,19 +41,31 @@ const formSchema = z.object({
 	difficulty: z.string(),
 	date: z.string(),
 	tags: z.string(),
+	zipFile: z.instanceof(File).optional().nullable(),
 })
 
-export default function TaskCreationForm() {
+type TaskCreationFormProps = {
+	taskId: number
+	taskTitle: string
+}
+
+export default function TaskCreationForm({ taskId }: TaskCreationFormProps) {
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
-		/* defaultValues: {
+		defaultValues: {
 			name: '',
-			password: '',
-		}, */
+			description: '',
+			difficulty: '',
+			date: '',
+			tags: '',
+			zipFile: null,
+		},
 		mode: 'onSubmit',
 	})
 
-	const onSubmit = () => {}
+	const onSubmit = (data: z.infer<typeof formSchema>) => {
+		console.log('Форма отправлена:', data)
+	}
 
 	return (
 		<Card>
@@ -150,9 +164,33 @@ export default function TaskCreationForm() {
 							</Field>
 						)}
 					/>
+					<Controller
+						name='tags'
+						control={form.control}
+						render={({ field }) => <TagField value={field.value} onChange={field.onChange} />}
+					/>
+					<Controller
+						name='zipFile'
+						control={form.control}
+						render={({ field, fieldState }) => (
+							<Field data-invalid={fieldState.invalid}>
+								<FieldLabel>Архив с задачей (zip)</FieldLabel>
+								<FileUploader
+									onFileSelect={file => field.onChange(file)}
+									onFileRemove={() => field.onChange(null)}
+									value={field.value}
+									attachmentName={field.value?.name}
+								/>
+								{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+							</Field>
+						)}
+					/>
 					//------------------------Text------------------------//
 				</form>
 			</CardContent>
+			<CardAction>
+				<Button type='submit'>Send to verification</Button>
+			</CardAction>
 		</Card>
 	)
 }

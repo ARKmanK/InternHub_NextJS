@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { ITask } from '../types/ITask'
+import { ITask } from '../model/ITask'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field, FieldGroup, FieldLegend } from '@/components/ui/field'
 import { ButtonGroup } from '@/components/ui/button-group'
@@ -8,35 +8,22 @@ import { Delete, DeleteIcon, Edit, Edit2, Link, Settings } from 'lucide-react'
 
 type TaskCardProps = {
 	data: ITask
-	role?: string
+	onEdit?: React.ReactNode
+	onDelete?: React.ReactNode
+	onFavorite?: React.ReactNode
 }
 
-function TaskCard({ data, role }: TaskCardProps) {
+function TaskCard({ data, onEdit, onDelete, onFavorite }: TaskCardProps) {
 	return (
 		<Card>
 			<CardHeader>
 				<Field orientation={'horizontal'}>
 					<FieldGroup>
 						<FieldLegend>Сейчас отслеживают: {data.trackingNumber}</FieldLegend>
-						{role === 'employer' && (
-							<ButtonGroup>
-								<Button className='bg-blue-600'>
-									Edit <Settings />
-								</Button>
-								<Button className='bg-red-600'>
-									Delete <Delete />
-								</Button>
-							</ButtonGroup>
-						)}
+						{onEdit && onEdit}
+						{onDelete && onDelete}
+						{onFavorite && onFavorite}
 					</FieldGroup>
-					<ButtonGroup>
-						<Button variant='outline'>
-							Edit <Edit />
-						</Button>
-						<Button variant='outline'>
-							Delete data <DeleteIcon />
-						</Button>
-					</ButtonGroup>
 				</Field>
 				<CardTitle>{data.title}</CardTitle>
 				<CardDescription>{data.description}</CardDescription>

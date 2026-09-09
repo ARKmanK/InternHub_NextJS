@@ -1,7 +1,7 @@
 'use client'
 
 import { memo } from 'react'
-import { ITask } from '../types/ITask'
+import { ITask } from '../../../entities/task/model/ITask'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Field, FieldGroup } from '@/components/ui/field'
 import { ButtonGroup } from '@/components/ui/button-group'

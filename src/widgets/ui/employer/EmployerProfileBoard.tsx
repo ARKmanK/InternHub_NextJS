@@ -1,5 +1,5 @@
 import TasksList from '@/shared/ui/tasks/TasksList'
-import { createServerClient } from '@/shared/api/supabaseClient'
+import { createServerClient } from '@/features/api/supabaseClient'
 import TaskSkeleton from '@/shared/ui/tasks/TaskSkeleton'
 
 export default async function EmployerProfileBoard() {

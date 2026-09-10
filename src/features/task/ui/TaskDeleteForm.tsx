@@ -15,7 +15,7 @@ import {
 import { Field, FieldError } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { createServerClient } from '@/shared/api/supabaseClient'
+import { createServerClient } from '@/features/api/supabaseClient'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 

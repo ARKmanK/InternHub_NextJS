@@ -1,9 +1,9 @@
 'use client'
 
 import { Field } from '@/components/ui/field'
-import { useActions } from '@/useActions'
+import { useActions } from '@/shared/model/useActions'
 import TagCreationForm from './TagCreationForm'
-import { useTagsSummary } from '@/app/store/hooks/useTagsSummary'
+import { useTagsSummary } from '@/app/(store)/hooks/useTagsSummary'
 import { Item, ItemContent, ItemHeader } from '@/components/ui/item'
 import Tag from '@/shared/ui/Tag'
 import { Button } from '@/components/ui/button'

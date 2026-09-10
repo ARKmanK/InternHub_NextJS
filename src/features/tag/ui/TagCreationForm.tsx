@@ -1,6 +1,6 @@
 'use client'
 
-import { useActions } from '@/app/store/hooks/useActions'
+import { useActions } from '@/app/(store)/hooks/useActions'
 import { Button } from '@/components/ui/button'
 import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'

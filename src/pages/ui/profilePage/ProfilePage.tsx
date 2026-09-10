@@ -1,8 +1,8 @@
-import LoginForm from '@/features/auth/ui/LoginForm'
 import { cookies } from 'next/headers'
 import AdminProfile from './admin/AdminProfile'
 import EmployerProfile from './employer/EmployerProfile'
 import UserProfile from './user/UserProfile'
+import { AuthTabs } from '@/features/auth/ui/AuthTabs'
 
 export default async function ProfilePage() {
 	const cookieStore = await cookies()
@@ -12,7 +12,7 @@ export default async function ProfilePage() {
 	await new Promise(resolve => setTimeout(resolve, 2000))
 
 	if (!token) {
-		return <LoginForm />
+		return <AuthTabs />
 	}
 
 	return (

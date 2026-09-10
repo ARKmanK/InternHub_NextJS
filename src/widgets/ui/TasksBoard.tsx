@@ -1,16 +1,14 @@
-'use client'
-
 import TasksFilter from '@/features/task/ui/TasksFilter'
-import { createServerClient } from '@/shared/api/supabaseClient'
 import FilterSkeleton from '@/entities/task/ui/FilterSkeleton'
 import TaskSkeleton from '@/shared/ui/tasks/TaskSkeleton'
-import TasksList from '@/shared/ui/tasks/TasksList'
 import { memo } from 'react'
+import { createServerSupabaseClient } from '@/features/api/supabase/server'
+import TaskBoardClient from '../../features/task/ui/TaskBoardClient'
 
 async function TasksBoard() {
-	const supabase = await createServerClient()
+	const supabase = await createServerSupabaseClient()
 
-	const { data: tasks, error } = await supabase.from('tasks').select(`*`)
+	const { data: tasks, error } = await supabase.from('tasks').select('*').range(0, 19)
 
 	if (!tasks || tasks.length === 0) {
 		return (
@@ -37,7 +35,7 @@ async function TasksBoard() {
 		<article className='min-[1200px]:h-30 min-[1200px]:w-screen'>
 			<div className='flex justify-between'>
 				<TasksFilter />
-				<TasksList list={tasks} />
+				<TaskBoardClient data={tasks || []} />
 			</div>
 		</article>
 	)

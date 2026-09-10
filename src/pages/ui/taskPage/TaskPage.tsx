@@ -1,5 +1,5 @@
 import TaskCard from '@/entities/task/ui/TaskCard'
-import { createServerClient } from '@/shared/api/supabaseClient'
+import { createServerClient } from '@/features/api/supabaseClient'
 import TaskSkeleton from '@/shared/ui/tasks/TaskSkeleton'
 
 type TaskProfilePageProps = {

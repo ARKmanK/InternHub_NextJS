@@ -142,7 +142,7 @@ export default function TaskCreationForm({ taskId }: TaskCreationFormProps) {
 											id='taskCreationForm-date'
 											variant='outline'
 											data-empty={!field.value}
-											className='w-[212px] justify-between text-left font-normal data-[empty=true]:text-muted-foreground'
+											className='w-53 justify-between text-left font-normal data-[empty=true]:text-muted-foreground'
 										>
 											{field.value ? (
 												format(new Date(field.value), 'PPP')

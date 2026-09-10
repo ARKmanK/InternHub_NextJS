@@ -1,20 +1,9 @@
-import { Button } from '@/components/ui/button'
-import {
-	Popover,
-	PopoverDescription,
-	PopoverHeader,
-	PopoverTitle,
-	PopoverTrigger,
-} from '@/components/ui/popover'
-import NotificationSkeleton from '@/entities/notification/ui/NotificationSkeleton'
-import { createServerClient } from '@/shared/api/supabaseClient'
-import { BellIcon } from 'lucide-react'
-import { cookies } from 'next/headers'
-import { toast } from 'sonner'
+import { createServerSupabaseClient } from '@/features/api/supabase/server'
 import NotificationClient from './NotificationClient'
+import { cookies } from 'next/headers'
 
 export default async function Notifications() {
-	const supabase = await createServerClient()
+	const supabase = await createServerSupabaseClient()
 	const cookieStore = await cookies()
 	const userID = cookieStore.get('userID')?.value
 

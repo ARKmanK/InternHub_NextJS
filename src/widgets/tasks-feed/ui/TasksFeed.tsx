@@ -15,7 +15,7 @@ import { loadMoreTasks } from '../api/loadMoreTasks'
 type TasksFeedProps = {
 	initialPage: TasksPage
 	filters: TaskFilters
-	viewer: { id: number; role: UserRole } | null
+	viewer: { id: string; role: UserRole } | null
 }
 
 export function TasksFeed({ initialPage, filters, viewer }: TasksFeedProps) {
@@ -56,7 +56,7 @@ export function TasksFeed({ initialPage, filters, viewer }: TasksFeedProps) {
 				<TaskCard
 					key={task.id}
 					task={task}
-					isMine={viewer?.role === 'employer' && viewer.id === task.employerId}
+					isMine={viewer?.role === 'employer' && viewer.id === task.authorId}
 					actions={
 						viewer?.role === 'student' && (
 							<FavoriteButton taskId={task.id} isFavorite={task.isFavorite} />

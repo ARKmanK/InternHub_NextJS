@@ -43,7 +43,9 @@ export async function TaskActivityTable({ taskId, canReview }: TaskActivityTable
 								</TableCell>
 								<TableCell>{submission.studentName}</TableCell>
 								<TableCell>
-									{format.dateTime(new Date(submission.submittedAt), { dateStyle: 'medium' })}
+									{submission.submittedAt
+										? format.dateTime(new Date(submission.submittedAt), { dateStyle: 'medium' })
+										: '—'}
 								</TableCell>
 								{canReview && (
 									<TableCell className='text-right'>

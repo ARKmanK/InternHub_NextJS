@@ -9,9 +9,9 @@ export async function TaskEditPage({ id }: { id: number }) {
 	const user = await getCurrentUser()
 	if (user?.role !== 'employer') redirect(routes.profile())
 
-	const [task, tags] = await Promise.all([getTaskById(id), getTags()])
+	const [task, tags] = await Promise.all([getTaskById(id, user), getTags()])
 	// Чужое задание выглядит так же, как несуществующее — не раскрываем, что оно есть
-	if (!task || task.employerId !== user.id) notFound()
+	if (!task || task.authorId !== user.id) notFound()
 
 	return (
 		<TaskForm

@@ -6,10 +6,10 @@ import { TasksFeed } from './TasksFeed'
 
 /** Лента задач с фильтрами. Первая страница рендерится на сервере, следующие догружаются. */
 export async function TasksBoard({ filters }: { filters: TaskFilters }) {
-	const [initialPage, options, user] = await Promise.all([
-		getTasks(filters),
+	const user = await getCurrentUser()
+	const [initialPage, options] = await Promise.all([
+		getTasks(filters, 0, user),
 		getTaskFilterOptions(),
-		getCurrentUser(),
 	])
 
 	return (

@@ -7,10 +7,12 @@ import { FavoriteButton } from '@/features/task/toggle-favorite'
 import { TaskActivityTable } from '@/widgets/task-activity'
 
 export async function TaskPage({ id }: { id: number }) {
-	const [task, user] = await Promise.all([getTaskById(id), getCurrentUser()])
+	const user = await getCurrentUser()
+	// Черновик или задание на модерации вернётся только автору и админу — остальным 404
+	const task = await getTaskById(id, user)
 	if (!task) notFound()
 
-	const isOwner = user?.role === 'employer' && user.id === task.employerId
+	const isOwner = user?.role === 'employer' && user.id === task.authorId
 
 	return (
 		<div className='flex flex-col gap-6'>
@@ -19,6 +21,7 @@ export async function TaskPage({ id }: { id: number }) {
 			</div>
 			<TaskCard
 				task={task}
+				variant='full'
 				isMine={isOwner}
 				showStatus={isOwner}
 				actions={

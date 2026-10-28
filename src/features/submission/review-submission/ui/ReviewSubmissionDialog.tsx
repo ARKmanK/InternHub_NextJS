@@ -62,13 +62,16 @@ export function ReviewSubmissionDialog({ submission }: { submission: ISubmission
 							</dd>
 						</>
 					)}
-					{submission.archiveUrl && (
+					{submission.files.length > 0 && (
 						<>
-							<dt className='text-muted-foreground'>{t('archive')}</dt>
+							<dt className='text-muted-foreground'>{t('files')}</dt>
 							<dd>
-								<a href={submission.archiveUrl} className='underline'>
-									{t('download')}
-								</a>
+								{/* TODO(этап 3): ссылка на скачивание через проверку прав на сервере */}
+								<ul className='flex flex-col gap-1'>
+									{submission.files.map(file => (
+										<li key={file.id}>{file.fileName}</li>
+									))}
+								</ul>
 							</dd>
 						</>
 					)}

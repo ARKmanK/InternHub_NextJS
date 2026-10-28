@@ -1,7 +1,7 @@
 /**
- * Жизненный цикл решения студента (этап 1, диаграмма состояний):
+ * Жизненный цикл решения студента (docs/02-data-model.md, диаграмма состояний):
  * draft → submitted ⇄ changes_requested → accepted | rejected.
- * TODO(этап 1): типы будут генерироваться из schema.prisma.
+ * DTO для интерфейса; enum'ы Prisma переводятся в entities/submission/api/submissionMapper.ts.
  */
 export const SUBMISSION_STATUSES = [
 	'draft',
@@ -13,16 +13,24 @@ export const SUBMISSION_STATUSES = [
 
 export type SubmissionStatus = (typeof SUBMISSION_STATUSES)[number]
 
+export interface ISubmissionFile {
+	id: number
+	kind: 'archive' | 'image'
+	fileName: string
+	sizeBytes: number
+}
+
 export interface ISubmission {
 	id: number
 	taskId: number
-	studentId: number
+	studentId: string
 	studentName: string
 	status: SubmissionStatus
 	repositoryUrl: string | null
-	archiveUrl: string | null
-	imageUrls: string[]
 	comment: string | null
+	score: number | null
 	reviewComment: string | null
-	submittedAt: string
+	/** Файлы лежат в хранилище; ссылку на скачивание выдаёт сервер после проверки прав (этап 3). */
+	files: ISubmissionFile[]
+	submittedAt: string | null
 }

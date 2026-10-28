@@ -3,13 +3,11 @@ export const USER_ROLES = ['student', 'employer', 'admin'] as const
 export type UserRole = (typeof USER_ROLES)[number]
 
 export interface IUser {
-	id: number
+	/** Строковый id (cuid) — формат, который использует Better Auth. */
+	id: string
 	email: string
+	name: string
 	role: UserRole
-	firstName?: string
-	lastName?: string
-	studentGroup?: string
-	course?: number
-	companyName?: string
-	createdAt: string
+	/** Есть только у работодателя. */
+	organizationId?: number
 }

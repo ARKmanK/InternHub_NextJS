@@ -1,17 +1,22 @@
 import { getTranslations } from 'next-intl/server'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
-import { TaskCard, type ITask } from '@/entities/task'
-import { getFavoriteTasks } from '@/entities/task/index.server'
+import { TaskCard } from '@/entities/task'
+import {
+	getFavoriteTasks,
+	getStudentAcceptedTasks,
+	getStudentTasksInProgress,
+} from '@/entities/task/index.server'
 import type { IUser } from '@/entities/user'
 import { FavoriteButton } from '@/features/task/toggle-favorite'
 import { EmptyList } from './EmptyList'
 
 export async function StudentDashboard({ user }: { user: IUser }) {
 	const t = await getTranslations('ProfileDashboards')
-	const favorite = await getFavoriteTasks(user.id)
-	// TODO(этап 3): задачи «в работе» и «принятые» берутся из решений студента
-	const started: ITask[] = []
-	const approved: ITask[] = []
+	const [favorite, started, approved] = await Promise.all([
+		getFavoriteTasks(user.id),
+		getStudentTasksInProgress(user.id),
+		getStudentAcceptedTasks(user.id),
+	])
 
 	const tabs = [
 		{ value: 'favorite', label: t('favorite'), tasks: favorite },

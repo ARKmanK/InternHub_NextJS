@@ -4,14 +4,14 @@ import { Pencil, Plus } from 'lucide-react'
 import { routes } from '@/shared/config'
 import { Button } from '@/shared/ui/button'
 import { TaskCard } from '@/entities/task'
-import { getTasksByEmployer } from '@/entities/task/index.server'
+import { getTasksByAuthor } from '@/entities/task/index.server'
 import type { IUser } from '@/entities/user'
 import { TaskDeleteDialog } from '@/features/task/task-delete'
 import { EmptyList } from './EmptyList'
 
 export async function EmployerDashboard({ user }: { user: IUser }) {
 	const t = await getTranslations('ProfileDashboards')
-	const tasks = await getTasksByEmployer(user.id)
+	const tasks = await getTasksByAuthor(user.id)
 
 	return (
 		<section className='flex flex-col gap-4'>

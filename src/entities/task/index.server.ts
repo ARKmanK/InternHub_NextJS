@@ -2,8 +2,11 @@
 export {
 	getTasks,
 	getTaskById,
-	getTasksByEmployer,
+	getTasksByAuthor,
 	getTasksOnModeration,
 	getFavoriteTasks,
+	getStudentTasksInProgress,
+	getStudentAcceptedTasks,
 	getTaskFilterOptions,
+	type TaskViewer,
 } from './api/taskQueries'

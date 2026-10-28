@@ -1,0 +1,7 @@
+# Во всех файлах переносы строк LF — так ждёт Prettier, и так одинаково на Windows, macOS и Linux
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff2 binary

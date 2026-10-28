@@ -19,8 +19,13 @@ export async function RootLayout({ children }: { children: ReactNode }) {
 	const locale = await getLocale()
 
 	return (
-		<html lang={locale} suppressHydrationWarning>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+		// Переменные шрифтов — на <html>: font-sans применяется к нему (globals.css), и переменная должна быть видна там
+		<html
+			lang={locale}
+			className={`${geistSans.variable} ${geistMono.variable}`}
+			suppressHydrationWarning
+		>
+			<body className='antialiased'>
 				<AppProviders>
 					<div className='flex min-h-screen flex-col'>
 						<Header />

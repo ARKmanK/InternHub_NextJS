@@ -1,0 +1,396 @@
+// Схема базы данных InternHub.
+// Документация по модели данных и жизненным циклам: docs/02-data-model.md
+//
+// Соглашения:
+// - модели и поля в Prisma — PascalCase / camelCase, таблицы и колонки в Postgres — snake_case (@@map / @map);
+// - пользователь и всё, что относится к авторизации, использует строковые id (так требует Better Auth, этап 2);
+//   остальные сущности — числовые автоинкрементные id;
+// - статусы — enum'ы Postgres: в базу нельзя записать несуществующий статус;
+// - история смены статусов хранится отдельно (TaskStatusChange, SubmissionStatusChange), а не только текущее значение.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/shared/api/db/generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Пользователи и роли ────────────────────────────────────────────────────
+
+enum UserRole {
+  STUDENT
+  EMPLOYER
+  ADMIN
+
+  @@map("user_role")
+}
+
+/// Учётная запись. Поля name, email, emailVerified, image, createdAt, updatedAt нужны Better Auth (этап 2).
+/// Роль назначает сервер при регистрации; пользователь сам её поменять не может.
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false) @map("email_verified")
+  image         String?
+  role          UserRole @default(STUDENT)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  sessions Session[]
+  accounts Account[]
+
+  studentProfile  StudentProfile?
+  employerProfile EmployerProfile?
+
+  createdTasks      Task[]                   @relation("TaskAuthor")
+  favorites         Favorite[]
+  applications      Application[]
+  submissions       Submission[]
+  notifications     Notification[]
+  taskStatusChanges TaskStatusChange[]
+  submissionChanges SubmissionStatusChange[]
+  verifiedOrgs      Organization[]           @relation("OrganizationVerifier")
+
+  @@map("users")
+}
+
+/// Данные студента: группа и курс связывают профиль с учебным процессом.
+model StudentProfile {
+  userId    String @id @map("user_id")
+  firstName String @map("first_name")
+  lastName  String @map("last_name")
+  group     String
+  course    Int
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("student_profiles")
+}
+
+enum OrganizationStatus {
+  PENDING // зарегистрирована, ждёт проверки администратором
+  VERIFIED // проверена — сотрудники могут публиковать задания
+  REJECTED // проверку не прошла
+  BLOCKED // заблокирована после жалоб/нарушений
+
+  @@map("organization_status")
+}
+
+/// Организация-работодатель. Публиковать задания можно только от имени VERIFIED-организации.
+model Organization {
+  id           Int                @id @default(autoincrement())
+  name         String
+  inn          String             @unique
+  ogrn         String?            @unique
+  website      String?
+  status       OrganizationStatus @default(PENDING)
+  verifiedAt   DateTime?          @map("verified_at")
+  verifiedById String?            @map("verified_by_id")
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
+
+  verifiedBy User?             @relation("OrganizationVerifier", fields: [verifiedById], references: [id], onDelete: SetNull)
+  employers  EmployerProfile[]
+  tasks      Task[]
+
+  @@index([status])
+  @@map("organizations")
+}
+
+/// Представитель организации.
+model EmployerProfile {
+  userId         String  @id @map("user_id")
+  organizationId Int     @map("organization_id")
+  position       String?
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId])
+  @@map("employer_profiles")
+}
+
+// ─── Задания ────────────────────────────────────────────────────────────────
+
+enum TaskStatus {
+  DRAFT // черновик, видит только автор
+  MODERATION // отправлено администратору на проверку
+  PUBLISHED // опубликовано, студенты могут подавать заявки и решения
+  CLOSED // набор/приём решений завершён
+  ARCHIVED // в архиве
+
+  @@map("task_status")
+}
+
+enum TaskDifficulty {
+  EASY
+  MEDIUM
+  HARD
+
+  @@map("task_difficulty")
+}
+
+/// Условия использования результата — вопрос интеллектуальной собственности решается при создании задания.
+enum IpTerms {
+  OPEN // решение можно публиковать (GitHub, портфолио)
+  PORTFOLIO_ONLY // можно показать в портфолио на платформе, но не публиковать код
+  NDA // результат закрытый, сдаётся архивом, в портфолио — только факт выполнения
+
+  @@map("ip_terms")
+}
+
+model Task {
+  id                Int            @id @default(autoincrement())
+  title             String         @db.VarChar(50)
+  description       String         @db.VarChar(3000)
+  expectedResult    String?        @map("expected_result") @db.VarChar(2000)
+  /// Критерии, по которым работодатель оценивает решения.
+  criteria          String?        @db.VarChar(2000)
+  difficulty        TaskDifficulty
+  status            TaskStatus     @default(DRAFT)
+  ipTerms           IpTerms        @default(OPEN) @map("ip_terms")
+  /// Обязательна ли ссылка на репозиторий при сдаче (для NDA обычно нет).
+  requireRepository Boolean        @default(true) @map("require_repository")
+  /// null — без ограничения по числу исполнителей.
+  maxParticipants   Int?           @map("max_participants")
+  deadline          DateTime?
+  /// Ключ архива с материалами в файловом хранилище (не публичная ссылка).
+  archiveKey        String?        @map("archive_key")
+  organizationId    Int            @map("organization_id")
+  authorId          String         @map("author_id")
+  publishedAt       DateTime?      @map("published_at")
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+
+  organization  Organization       @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  author        User               @relation("TaskAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+  tags          Tag[]
+  favorites     Favorite[]
+  applications  Application[]
+  submissions   Submission[]
+  statusChanges TaskStatusChange[]
+
+  // Лента: опубликованные задания, новые сверху
+  @@index([status, publishedAt(sort: Desc)])
+  @@index([organizationId])
+  @@index([authorId])
+  @@map("tasks")
+}
+
+model Tag {
+  id    Int    @id @default(autoincrement())
+  name  String @unique @db.VarChar(20)
+  tasks Task[]
+
+  @@map("tags")
+}
+
+/// История статусов задания: кто, когда и с каким комментарием перевёл (в т.ч. решения модератора).
+model TaskStatusChange {
+  id          Int         @id @default(autoincrement())
+  taskId      Int         @map("task_id")
+  fromStatus  TaskStatus? @map("from_status")
+  toStatus    TaskStatus  @map("to_status")
+  comment     String?     @db.VarChar(2000)
+  changedById String      @map("changed_by_id")
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  task      Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  changedBy User @relation(fields: [changedById], references: [id], onDelete: Restrict)
+
+  @@index([taskId, createdAt])
+  @@map("task_status_changes")
+}
+
+/// Избранное студента. Число отслеживаний задания = количество записей здесь (без отдельного счётчика).
+model Favorite {
+  studentId String   @map("student_id")
+  taskId    Int      @map("task_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  task    Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@id([studentId, taskId])
+  @@index([taskId])
+  @@map("favorites")
+}
+
+// ─── Участие и решения ──────────────────────────────────────────────────────
+
+enum ApplicationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  WITHDRAWN
+
+  @@map("application_status")
+}
+
+/// Заявка студента на выполнение задания. Решение можно сдать только по принятой заявке.
+model Application {
+  id        Int               @id @default(autoincrement())
+  taskId    Int               @map("task_id")
+  studentId String            @map("student_id")
+  status    ApplicationStatus @default(PENDING)
+  message   String?           @db.VarChar(1000)
+  createdAt DateTime          @default(now()) @map("created_at")
+  updatedAt DateTime          @updatedAt @map("updated_at")
+
+  task    Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, studentId])
+  @@index([studentId])
+  @@map("applications")
+}
+
+enum SubmissionStatus {
+  DRAFT
+  SUBMITTED
+  CHANGES_REQUESTED
+  ACCEPTED
+  REJECTED
+
+  @@map("submission_status")
+}
+
+/// Решение студента. Один студент — одно решение на задание; доработки меняют его статус, история — в SubmissionStatusChange.
+model Submission {
+  id            Int              @id @default(autoincrement())
+  taskId        Int              @map("task_id")
+  studentId     String           @map("student_id")
+  status        SubmissionStatus @default(DRAFT)
+  repositoryUrl String?          @map("repository_url")
+  comment       String?          @db.VarChar(2000)
+  /// Оценка работодателя по шкале 1–5 (выставляется при ACCEPTED).
+  score         Int?
+  reviewComment String?          @map("review_comment") @db.VarChar(2000)
+  submittedAt   DateTime?        @map("submitted_at")
+  reviewedAt    DateTime?        @map("reviewed_at")
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+
+  task          Task                     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  student       User                     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  files         SubmissionFile[]
+  statusChanges SubmissionStatusChange[]
+
+  @@unique([taskId, studentId])
+  @@index([studentId, status])
+  @@map("submissions")
+}
+
+enum SubmissionFileKind {
+  ARCHIVE
+  IMAGE
+
+  @@map("submission_file_kind")
+}
+
+/// Файл решения. В базе — только метаданные и ключ в хранилище; сам файл — в объектном хранилище (этап 3).
+model SubmissionFile {
+  id           Int                @id @default(autoincrement())
+  submissionId Int                @map("submission_id")
+  kind         SubmissionFileKind
+  storageKey   String             @unique @map("storage_key")
+  fileName     String             @map("file_name")
+  mimeType     String             @map("mime_type")
+  sizeBytes    Int                @map("size_bytes")
+  createdAt    DateTime           @default(now()) @map("created_at")
+
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@index([submissionId])
+  @@map("submission_files")
+}
+
+model SubmissionStatusChange {
+  id           Int               @id @default(autoincrement())
+  submissionId Int               @map("submission_id")
+  fromStatus   SubmissionStatus? @map("from_status")
+  toStatus     SubmissionStatus  @map("to_status")
+  comment      String?           @db.VarChar(2000)
+  changedById  String            @map("changed_by_id")
+  createdAt    DateTime          @default(now()) @map("created_at")
+
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  changedBy  User       @relation(fields: [changedById], references: [id], onDelete: Restrict)
+
+  @@index([submissionId, createdAt])
+  @@map("submission_status_changes")
+}
+
+// ─── Уведомления ────────────────────────────────────────────────────────────
+
+model Notification {
+  id        Int       @id @default(autoincrement())
+  userId    String    @map("user_id")
+  title     String    @db.VarChar(200)
+  body      String    @db.VarChar(1000)
+  link      String?
+  readAt    DateTime? @map("read_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Непрочитанные уведомления пользователя
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+// ─── Таблицы Better Auth (этап 2) ───────────────────────────────────────────
+// Структура совпадает со схемой Better Auth; на этапе 2 сверим её командой `@better-auth/cli generate`.
+
+model Session {
+  id        String   @id
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String    @map("account_id")
+  providerId            String    @map("provider_id")
+  userId                String    @map("user_id")
+  accessToken           String?   @map("access_token")
+  refreshToken          String?   @map("refresh_token")
+  idToken               String?   @map("id_token")
+  accessTokenExpiresAt  DateTime? @map("access_token_expires_at")
+  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
+  scope                 String?
+  /// Хэш пароля (bcrypt/scrypt) — открытый пароль нигде не хранится.
+  password              String?
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@index([identifier])
+  @@map("verifications")
+}

@@ -8,3 +8,5 @@ src/shared/ui/*.tsx
 !src/shared/ui/file-picker.tsx
 !src/shared/ui/form-field-error.tsx
 !src/shared/ui/tag-input.tsx
+src/shared/api/db/generated
+prisma/migrations

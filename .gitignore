@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+!.env.example
+
+# prisma client (генерируется командой `bun run db:generate`)
+/src/shared/api/db/generated

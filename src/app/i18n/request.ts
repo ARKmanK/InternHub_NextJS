@@ -16,5 +16,8 @@ export default getRequestConfig(async () => {
 		locale,
 		messages: getMessages(locale),
 		timeZone: 'Asia/Irkutsk',
+		// «Сейчас» для относительного времени («5 минут назад»). Провайдер передаёт это же значение в браузер,
+		// поэтому текст на сервере и после гидратации совпадает
+		now: new Date(),
 	}
 })

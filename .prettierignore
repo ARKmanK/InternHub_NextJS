@@ -1,0 +1,10 @@
+.next
+node_modules
+bun.lock
+next-env.d.ts
+# Компоненты shadcn генерирует CLI в своём стиле — не переформатируем, чтобы обновления давали чистый diff
+src/shared/ui/*.tsx
+!src/shared/ui/back-button.tsx
+!src/shared/ui/file-picker.tsx
+!src/shared/ui/form-field-error.tsx
+!src/shared/ui/tag-input.tsx

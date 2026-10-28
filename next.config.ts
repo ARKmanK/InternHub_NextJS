@@ -1,8 +1,17 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
+import createNextIntlPlugin from 'next-intl/plugin'
+
+const withNextIntl = createNextIntlPlugin('./src/app/i18n/request.ts')
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  reactCompiler: true,
-};
+	reactCompiler: true,
+	poweredByHeader: false,
+	experimental: {
+		serverActions: {
+			// Архив к заданию — до 50 МБ (src/shared/config/files.ts) плюс запас на остальные поля формы
+			bodySizeLimit: '52mb',
+		},
+	},
+}
 
-export default nextConfig;
+export default withNextIntl(nextConfig)

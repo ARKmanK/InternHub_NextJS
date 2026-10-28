@@ -5,6 +5,7 @@ import { routes } from '@/shared/config'
 import { Button } from '@/shared/ui/button'
 import { getUnreadNotifications } from '@/entities/notification/index.server'
 import { getCurrentUser } from '@/entities/user/index.server'
+import { LogoutButton } from '@/features/auth/logout'
 import { LangSwitch } from '@/features/lang-switch'
 import { NotificationsPopover } from '@/features/notifications'
 import { ThemeToggle } from '@/features/theme-toggle'
@@ -26,7 +27,7 @@ export async function Header() {
 					</Button>
 				</nav>
 				<div className='ml-auto flex items-center gap-2'>
-					{user?.role === 'employer' && (
+					{user?.organization?.status === 'verified' && (
 						<Button asChild>
 							<Link href={routes.taskCreate()}>
 								<Plus /> <span className='hidden sm:inline'>{t('createTask')}</span>
@@ -41,6 +42,7 @@ export async function Header() {
 							<User /> <span className='hidden sm:inline'>{user ? t('profile') : t('login')}</span>
 						</Link>
 					</Button>
+					{user && <LogoutButton />}
 				</div>
 			</div>
 		</header>

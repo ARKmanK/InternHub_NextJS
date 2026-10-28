@@ -10,6 +10,13 @@ const en = {
 	edit: 'Edit',
 	adminTitle: 'Administrator panel',
 	moderation: 'Tasks awaiting moderation',
+	organizationsReview: 'Organizations awaiting verification',
+	orgPendingTitle: 'Organization is being verified',
+	orgPendingDescription:
+		'The administrator will check the INN and contact you. After that you can publish tasks.',
+	orgRejectedTitle: 'Organization is not verified',
+	orgRejectedDescription:
+		'You cannot publish tasks. Contact the platform administrator to find out why.',
 	empty: 'The list is empty',
 }
 
@@ -23,6 +30,13 @@ const ru = {
 	edit: 'Редактировать',
 	adminTitle: 'Панель администратора',
 	moderation: 'Задачи на модерации',
+	organizationsReview: 'Организации на проверке',
+	orgPendingTitle: 'Организация на проверке',
+	orgPendingDescription:
+		'Администратор сверит ИНН и при необходимости свяжется с вами. После этого можно будет публиковать задания.',
+	orgRejectedTitle: 'Организация не подтверждена',
+	orgRejectedDescription:
+		'Публиковать задания нельзя. Свяжитесь с администратором платформы, чтобы узнать причину.',
 	empty: 'Список пуст',
 }
 

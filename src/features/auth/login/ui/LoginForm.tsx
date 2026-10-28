@@ -1,6 +1,8 @@
 'use client'
 
 import { useTransition } from 'react'
+import Link from 'next/link'
+import { routes } from '@/shared/config'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslations } from 'next-intl'
@@ -57,7 +59,15 @@ export function LoginForm() {
 							control={form.control}
 							render={({ field, fieldState }) => (
 								<Field data-invalid={fieldState.invalid}>
-									<FieldLabel htmlFor='login-password'>{t('password')}</FieldLabel>
+									<div className='flex items-center justify-between'>
+										<FieldLabel htmlFor='login-password'>{t('password')}</FieldLabel>
+										<Link
+											href={routes.forgotPassword()}
+											className='text-sm text-muted-foreground underline-offset-4 hover:underline'
+										>
+											{t('forgotPassword')}
+										</Link>
+									</div>
 									<Input
 										{...field}
 										id='login-password'

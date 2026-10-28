@@ -5,6 +5,7 @@ const en = {
 	password: 'Password',
 	logIn: 'Log in',
 	loading: 'Logging in...',
+	forgotPassword: 'Forgot password?',
 }
 
 const ru = {
@@ -12,6 +13,7 @@ const ru = {
 	password: 'Пароль',
 	logIn: 'Войти',
 	loading: 'Вход...',
+	forgotPassword: 'Забыли пароль?',
 }
 
 export default defineTranslations({ en, ru })

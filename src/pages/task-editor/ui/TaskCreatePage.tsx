@@ -6,8 +6,11 @@ import { TaskForm } from '@/features/task/task-form'
 
 export async function TaskCreatePage() {
 	const user = await getCurrentUser()
-	// TODO(этап 2): перенести проверку роли в layout группы маршрутов работодателя
-	if (user?.role !== 'employer') redirect(routes.profile())
+	// Публиковать может только работодатель подтверждённой организации; остальных — в кабинет,
+	// где видно, почему (не вошёл / организация на проверке). Server action повторит эту проверку (этап 3).
+	if (user?.role !== 'employer' || user.organization?.status !== 'verified') {
+		redirect(routes.profile())
+	}
 
 	const tags = await getTags()
 

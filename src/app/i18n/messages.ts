@@ -1,11 +1,15 @@
 import { commonTranslations, validationTranslations, type Locale } from '@/shared/i18n'
+import { translations as organizationCard } from '@/entities/organization'
 import { translations as submissionStatus } from '@/entities/submission'
 import { translations as taskCard } from '@/entities/task'
 import { translations as loginForm } from '@/features/auth/login'
+import { translations as logoutButton } from '@/features/auth/logout'
 import { translations as registerEmployerForm } from '@/features/auth/register-employer'
 import { translations as registerStudentForm } from '@/features/auth/register-student'
+import { translations as resetPassword } from '@/features/auth/reset-password'
 import { translations as langSwitch } from '@/features/lang-switch'
 import { translations as notifications } from '@/features/notifications'
+import { translations as verifyOrganization } from '@/features/organization/verify-organization'
 import { translations as reviewSubmission } from '@/features/submission/review-submission'
 import { translations as taskDelete } from '@/features/task/task-delete'
 import { translations as taskFilters } from '@/features/task/task-filters'
@@ -34,12 +38,16 @@ const registry = {
 	Common: commonTranslations,
 	Validation: validationTranslations,
 	// entities
+	OrganizationCard: organizationCard,
 	SubmissionStatus: submissionStatus,
 	TaskCard: taskCard,
 	// features
 	LoginForm: loginForm,
+	LogoutButton: logoutButton,
 	RegisterStudentForm: registerStudentForm,
 	RegisterEmployerForm: registerEmployerForm,
+	ResetPassword: resetPassword,
+	VerifyOrganization: verifyOrganization,
 	LangSwitch: langSwitch,
 	ThemeToggle: themeToggle,
 	Notifications: notifications,

@@ -2,10 +2,14 @@
  * Тестовые данные для разработки: `bun run db:seed` (или автоматически после `prisma migrate reset`).
  * Все организации и люди выдуманные. Скрипт идемпотентный: сначала очищает таблицы, потом заполняет заново.
  *
- * Пароли не создаются — учётные данные появятся вместе с авторизацией на этапе 2.
+ * Войти можно под любым пользователем — пароль из SEED_PASSWORD (.env.local):
+ *   admin@internhub.local, student1..4@internhub.local, employer1..4@internhub.local
+ *   (employer4 — организация «на проверке», её можно подтвердить из кабинета админа).
  */
+import { randomUUID } from 'node:crypto'
 import nextEnv from '@next/env'
 import { PrismaPg } from '@prisma/adapter-pg'
+import { hashPassword } from 'better-auth/crypto'
 import {
 	ApplicationStatus,
 	IpTerms,
@@ -20,8 +24,20 @@ import {
 
 nextEnv.loadEnvConfig(process.cwd())
 
+const getSeedPassword = () => {
+	const password = process.env.SEED_PASSWORD
+	if (!password || password.length < 8) {
+		throw new Error('Задайте SEED_PASSWORD (минимум 8 символов) в .env.local — см. .env.example')
+	}
+	return password
+}
+const SEED_PASSWORD = getSeedPassword()
+
 const db = new PrismaClient({
-	adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL! }),
+	adapter: new PrismaPg({
+		connectionString: process.env.DATABASE_URL!,
+		max: Number(process.env.DATABASE_POOL_SIZE ?? 10),
+	}),
 })
 
 const DAY = 24 * 60 * 60 * 1000
@@ -140,6 +156,18 @@ async function main() {
 			}),
 		),
 	)
+
+	// Пароль для входа: запись в accounts с хэшем, как её создаёт Better Auth при регистрации по email
+	const passwordHash = await hashPassword(SEED_PASSWORD)
+	await db.account.createMany({
+		data: [admin, ...students, ...employers].map(user => ({
+			id: randomUUID(),
+			accountId: user.id,
+			providerId: 'credential',
+			userId: user.id,
+			password: passwordHash,
+		})),
+	})
 
 	// ─── Задания ──────────────────────────────────────────────────────────────
 	type SeedTask = {

@@ -1,11 +1,12 @@
 'use client'
 
-import { useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 import { Button } from '@/shared/ui/button'
+import { CheckEmailNotice } from '@/shared/ui/check-email-notice'
 import { Card, CardContent, CardFooter } from '@/shared/ui/card'
 import { Field, FieldGroup, FieldLabel } from '@/shared/ui/field'
 import { FormFieldError } from '@/shared/ui/form-field-error'
@@ -21,8 +22,12 @@ const fields: {
 	name: keyof RegisterEmployerFormValues
 	type?: string
 	autoComplete: string
+	inputMode?: 'numeric'
 }[] = [
+	{ name: 'contactName', autoComplete: 'name' },
 	{ name: 'companyName', autoComplete: 'organization' },
+	{ name: 'inn', autoComplete: 'off', inputMode: 'numeric' },
+	{ name: 'ogrn', autoComplete: 'off', inputMode: 'numeric' },
 	{ name: 'email', type: 'email', autoComplete: 'email' },
 	{ name: 'password', type: 'password', autoComplete: 'new-password' },
 ]
@@ -31,24 +36,38 @@ export function RegisterEmployerForm() {
 	const t = useTranslations('RegisterEmployerForm')
 	const tCommon = useTranslations('Common')
 	const [isPending, startTransition] = useTransition()
+	const [sentTo, setSentTo] = useState<string | null>(null)
 
 	const form = useForm<RegisterEmployerFormValues>({
 		resolver: zodResolver(registerEmployerSchema),
-		defaultValues: { companyName: '', email: '', password: '' },
+		defaultValues: {
+			contactName: '',
+			companyName: '',
+			inn: '',
+			ogrn: '',
+			email: '',
+			password: '',
+		},
 	})
 
 	const onSubmit = (values: RegisterEmployerFormValues) =>
 		startTransition(async () => {
 			const result = await registerEmployerAction(values)
-			if (!result.ok) toast.error(tCommon(result.error))
+			if (!result.ok) {
+				toast.error(tCommon(result.error))
+				return
+			}
+			setSentTo(values.email)
 		})
+
+	if (sentTo) return <CheckEmailNotice email={sentTo} />
 
 	return (
 		<Card>
 			<CardContent>
 				<form id='register-employer-form' onSubmit={form.handleSubmit(onSubmit)} noValidate>
 					<FieldGroup>
-						{fields.map(({ name, type, autoComplete }) => (
+						{fields.map(({ name, type, autoComplete, inputMode }) => (
 							<Controller
 								key={name}
 								name={name}
@@ -61,6 +80,7 @@ export function RegisterEmployerForm() {
 											id={`register-employer-${name}`}
 											type={type}
 											autoComplete={autoComplete}
+											inputMode={inputMode}
 											aria-invalid={fieldState.invalid}
 										/>
 										<FormFieldError error={fieldState.error} />
@@ -68,6 +88,7 @@ export function RegisterEmployerForm() {
 								)}
 							/>
 						))}
+						<p className='text-sm text-muted-foreground'>{t('hint')}</p>
 					</FieldGroup>
 				</form>
 			</CardContent>

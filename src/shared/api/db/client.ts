@@ -13,8 +13,12 @@ const createPrismaClient = () => {
 	const connectionString = process.env.DATABASE_URL
 	if (!connectionString) throw new Error('DATABASE_URL не задан — см. .env.example')
 
+	// Размер пула соединений. Локальная база `prisma dev` (PGlite) держит только одно соединение —
+	// при большем пуле параллельные запросы получают «Server has closed the connection»
+	const max = Number(process.env.DATABASE_POOL_SIZE ?? 10)
+
 	return new PrismaClient({
-		adapter: new PrismaPg({ connectionString }),
+		adapter: new PrismaPg({ connectionString, max }),
 		log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
 	})
 }

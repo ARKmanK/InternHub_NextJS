@@ -8,6 +8,12 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    # Сборке база и почта не нужны, но модули подключения проверяют, что переменные заданы.
+    # Это заглушки только для CI: к реальной базе они не ведут, секрет нигде не используется.
+    env:
+      DATABASE_URL: postgres://ci:ci@localhost:5432/ci
+      BETTER_AUTH_SECRET: ci-only-secret-not-used-anywhere-0000000000
+      BETTER_AUTH_URL: http://localhost:3000
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2

@@ -2,16 +2,38 @@
 
 Платформа проектного взаимодействия студентов и работодателей: компании публикуют реальные задания, администратор их модерирует, студенты выполняют и сдают решения, работодатель проверяет и оценивает.
 
-Стек: **Next.js 16** (App Router, Server Components, Server Actions) · **React 19** + React Compiler · **TypeScript** · **Tailwind CSS 4** + **shadcn/ui** · **react-hook-form** + **zod** · **next-intl** · архитектура **Feature-Sliced Design**. База данных — PostgreSQL через **Prisma** (подключается на этапе 1).
+Стек: **Next.js 16** (App Router, Server Components, Server Actions) · **React 19** + React Compiler · **TypeScript** · **Tailwind CSS 4** + **shadcn/ui** · **react-hook-form** + **zod** · **next-intl** · архитектура **Feature-Sliced Design**. База данных — **PostgreSQL** через **Prisma 7**.
+
+Документация: [требования](docs/01-requirements.md) · [модель данных и жизненные циклы](docs/02-data-model.md) · [архитектура](docs/03-architecture.md).
 
 ## Запуск
 
-Нужны [Bun](https://bun.sh) 1.3+ и Node.js 20+.
+Нужны [Bun](https://bun.sh) 1.3+ и Node.js 20+. Docker и установленный PostgreSQL не нужны: для разработки Prisma поднимает локальную базу сама.
 
 ```bash
-bun install
-bun dev          # http://localhost:3000
+bun install                  # заодно сгенерирует Prisma Client
+cp .env.example .env.local
+bun run db:start             # локальный PostgreSQL в фоне; адрес — `bunx prisma dev ls` (строка TCP)
+bun run db:migrate           # применить миграции
+bun run db:seed              # тестовые данные
+bun dev                      # http://localhost:3000
 ```
+
+Если порты базы в `bunx prisma dev ls` отличаются от `.env.local`, поправьте `DATABASE_URL` и `SHADOW_DATABASE_URL`.
+
+## База данных
+
+| Команда                        | Что делает                                                                            |
+| ------------------------------ | ------------------------------------------------------------------------------------- |
+| `bun run db:start` / `db:stop` | запустить / остановить локальную базу (`prisma dev`)                                  |
+| `bun run db:migrate`           | изменили `prisma/schema.prisma` → создать и применить миграцию (`prisma migrate dev`) |
+| `bun run db:generate`          | перегенерировать Prisma Client (после изменения схемы)                                |
+| `bun run db:seed`              | заполнить базу тестовыми данными (`prisma/seed.ts`)                                   |
+| `bun run db:reset`             | удалить все данные, заново применить миграции и сид                                   |
+| `bun run db:studio`            | Prisma Studio — просмотр и правка данных в браузере                                   |
+| `bun run db:deploy`            | применить миграции на production (без создания новых)                                 |
+
+Как устроено: схема — `prisma/schema.prisma`, миграции — `prisma/migrations` (хранятся в git), настройки CLI — `prisma.config.ts`. Клиент генерируется в `src/shared/api/db/generated` (в git не попадает), подключение — `src/shared/api/db/client.ts`. Запросы пишутся в `entities/*/api` и превращают строки БД в DTO для интерфейса.
 
 ## Команды
 
@@ -64,4 +86,6 @@ export default defineTranslations({ en, ru }) // ошибка компиляци
 
 ## Состояние проекта
 
-Этап 0 (основа) завершён: проект собирается, архитектура и переводы настроены. Данных пока нет: функции в `entities/*/api` и server actions в `features/*/api` — заглушки с пометками `TODO(этап N)`. План: подключить PostgreSQL + Prisma (этап 1), авторизацию (этап 2), основной цикл задания (этап 3).
+- **Этап 0** — основа: архитектура FSD, i18n, линтеры, CI.
+- **Этап 1** — база данных: схема, миграции, сид, чтение данных через Prisma (лента, фильтры, страница задания, кабинеты), документация.
+- Дальше: **этап 2** — авторизация (Better Auth), **этап 3** — изменение данных (создание заданий, модерация, заявки, решения, файлы). Server actions в `features/*/api` пока заглушки с пометками `TODO(этап N)`; `getCurrentUser()` возвращает `null`, поэтому кабинеты увидеть пока нельзя.

@@ -65,12 +65,20 @@ export const getTaskById = (id: number, viewer: TaskViewer = null): Promise<ITas
 // получают задание одним SQL-запросом. Аргументы — примитивы, потому что cache сравнивает их по ссылке.
 const findTaskById = cache(
 	async (id: number, viewerId: string | null, role: string | null): Promise<ITask | null> => {
-		const visibility: Prisma.TaskWhereInput[] = [{ status: { in: PUBLIC_STATUSES } }]
-		if (role === 'admin') visibility.push({})
-		if (role === 'employer' && viewerId) visibility.push({ authorId: viewerId })
+		// Администратор видит задания в любом статусе. Важно: не через `{}` внутри OR —
+		// Prisma выбрасывает пустое условие из OR, и админ получал бы 404 на задания на модерации
+		const visibility: Prisma.TaskWhereInput =
+			role === 'admin'
+				? {}
+				: {
+						OR: [
+							{ status: { in: PUBLIC_STATUSES } },
+							...(role === 'employer' && viewerId ? [{ authorId: viewerId }] : []),
+						],
+					}
 
 		const row = await db.task.findFirst({
-			where: { id, OR: visibility },
+			where: { id, ...visibility },
 			select: taskSelect(viewerId ?? undefined),
 		})
 

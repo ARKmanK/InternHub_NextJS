@@ -5,6 +5,8 @@ export const routes = {
 	task: (id: number) => `/tasks/${id}`,
 	taskCreate: () => '/tasks/new',
 	taskEdit: (id: number) => `/tasks/${id}/edit`,
+	taskArchive: (id: number) => `/api/files/tasks/${id}`,
+	submissionFile: (id: number) => `/api/files/submissions/${id}`,
 	forgotPassword: () => '/forgot-password',
 	resetPassword: () => '/reset-password',
 } as const

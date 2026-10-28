@@ -44,3 +44,6 @@ next-env.d.ts
 
 # prisma client (генерируется командой `bun run db:generate`)
 /src/shared/api/db/generated
+
+# загруженные файлы (локальное хранилище для разработки)
+/.storage

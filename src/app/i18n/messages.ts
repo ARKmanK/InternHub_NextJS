@@ -1,7 +1,10 @@
 import { commonTranslations, validationTranslations, type Locale } from '@/shared/i18n'
+import { translations as applicationStatus } from '@/entities/application'
 import { translations as organizationCard } from '@/entities/organization'
 import { translations as submissionStatus } from '@/entities/submission'
 import { translations as taskCard } from '@/entities/task'
+import { translations as applyToTask } from '@/features/application/apply-to-task'
+import { translations as reviewApplication } from '@/features/application/review-application'
 import { translations as loginForm } from '@/features/auth/login'
 import { translations as logoutButton } from '@/features/auth/logout'
 import { translations as registerEmployerForm } from '@/features/auth/register-employer'
@@ -11,6 +14,8 @@ import { translations as langSwitch } from '@/features/lang-switch'
 import { translations as notifications } from '@/features/notifications'
 import { translations as verifyOrganization } from '@/features/organization/verify-organization'
 import { translations as reviewSubmission } from '@/features/submission/review-submission'
+import { translations as submitSolution } from '@/features/submission/submit-solution'
+import { translations as closeTask } from '@/features/task/close-task'
 import { translations as taskDelete } from '@/features/task/task-delete'
 import { translations as taskFilters } from '@/features/task/task-filters'
 import { translations as taskForm } from '@/features/task/task-form'
@@ -19,11 +24,14 @@ import { translations as favoriteButton } from '@/features/task/toggle-favorite'
 import { translations as themeToggle } from '@/features/theme-toggle'
 import { translations as homePage } from '@/pages/home'
 import { translations as notFoundPage } from '@/pages/not-found'
+import { translations as taskPage } from '@/pages/task'
 import { translations as authPanel } from '@/widgets/auth-panel'
 import { translations as footer } from '@/widgets/footer'
 import { translations as header } from '@/widgets/header'
 import { translations as profileDashboards } from '@/widgets/profile-dashboards'
 import { translations as taskActivity } from '@/widgets/task-activity'
+import { translations as taskApplications } from '@/widgets/task-applications'
+import { translations as taskParticipation } from '@/widgets/task-participation'
 import { translations as tasksFeed } from '@/widgets/tasks-feed'
 
 /**
@@ -38,10 +46,15 @@ const registry = {
 	Common: commonTranslations,
 	Validation: validationTranslations,
 	// entities
+	ApplicationStatus: applicationStatus,
 	OrganizationCard: organizationCard,
 	SubmissionStatus: submissionStatus,
 	TaskCard: taskCard,
 	// features
+	ApplyToTask: applyToTask,
+	ReviewApplication: reviewApplication,
+	SubmitSolution: submitSolution,
+	CloseTask: closeTask,
 	LoginForm: loginForm,
 	LogoutButton: logoutButton,
 	RegisterStudentForm: registerStudentForm,
@@ -63,10 +76,13 @@ const registry = {
 	AuthPanel: authPanel,
 	TasksFeed: tasksFeed,
 	TaskActivity: taskActivity,
+	TaskApplications: taskApplications,
+	TaskParticipation: taskParticipation,
 	ProfileDashboards: profileDashboards,
 	// pages
 	HomePage: homePage,
 	NotFoundPage: notFoundPage,
+	TaskPage: taskPage,
 } as const
 
 type Registry = typeof registry

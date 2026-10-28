@@ -10,3 +10,6 @@ export {
 	getTaskFilterOptions,
 	type TaskViewer,
 } from './api/taskQueries'
+export { changeTaskStatus, canChangeTaskStatus } from './api/taskStatus'
+export { getTaskArchive } from './api/taskArchive'
+export { difficultyFromDto } from './api/taskMapper'

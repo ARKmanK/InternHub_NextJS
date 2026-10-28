@@ -1,17 +1,69 @@
 'use server'
 
-import { notImplemented, type ActionResult } from '@/shared/lib/actionResult'
+import { revalidatePath } from 'next/cache'
+import { db, TaskStatus } from '@/shared/api'
+import { routes } from '@/shared/config'
+import type { ActionResult } from '@/shared/lib/actionResult'
+import { notifyUsers } from '@/entities/notification/index.server'
+import { changeTaskStatus } from '@/entities/task/index.server'
+import { getCurrentUser } from '@/entities/user/index.server'
 
 export type ModerationDecision = 'approve' | 'reject'
 
 /**
- * TODO(этап 3): только для admin. approve → статус 'published', reject → 'draft' с комментарием;
- * записать решение в историю модерации и отправить уведомление работодателю.
+ * Решение администратора по заданию на модерации:
+ * approve — публикация, reject — возврат автору в черновик с обязательным комментарием.
  */
 export async function moderateTaskAction(
-	_taskId: number,
-	_decision: ModerationDecision,
-	_comment?: string,
+	taskId: number,
+	decision: ModerationDecision,
+	comment = '',
 ): Promise<ActionResult> {
-	return notImplemented()
+	const user = await getCurrentUser()
+	if (user?.role !== 'admin') return { ok: false, error: 'forbidden' }
+
+	const reason = comment.trim()
+	if (!Number.isInteger(taskId) || (decision === 'reject' && reason.length < 5)) {
+		return { ok: false, error: 'invalidData' }
+	}
+
+	const task = await db.task.findUnique({
+		where: { id: taskId },
+		select: { title: true, authorId: true, publishedAt: true },
+	})
+	if (!task) return { ok: false, error: 'invalidData' }
+
+	const approved = decision === 'approve'
+
+	const changed = await db.$transaction(async tx => {
+		const ok = await changeTaskStatus(tx, {
+			taskId,
+			from: TaskStatus.MODERATION,
+			to: approved ? TaskStatus.PUBLISHED : TaskStatus.DRAFT,
+			changedById: user.id,
+			comment: reason || null,
+			// Дата первой публикации сохраняется при повторной модерации после правок
+			data: approved && !task.publishedAt ? { publishedAt: new Date() } : undefined,
+		})
+		if (ok) {
+			await notifyUsers(
+				[task.authorId],
+				approved
+					? { title: 'Задание опубликовано', body: `«${task.title}» прошло модерацию.` }
+					: {
+							title: 'Задание возвращено на доработку',
+							body: `«${task.title}»: ${reason}`,
+						},
+				tx,
+			)
+		}
+		return ok
+	})
+	// Задание уже не на модерации (решение принял другой администратор)
+	if (!changed) return { ok: false, error: 'invalidData' }
+
+	revalidatePath(routes.profile())
+	revalidatePath(routes.home())
+	revalidatePath(routes.task(taskId))
+	return { ok: true, data: undefined }
 }

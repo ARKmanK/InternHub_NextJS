@@ -23,9 +23,15 @@ const en = {
 	tagsLimit: 'No more than 10 tags',
 	fileSize: 'File is larger than 50 MB',
 	fileType: 'Unsupported file type',
-	githubUrl: 'Enter a GitHub repository link',
+	repositoryUrl: 'Enter a link to the repository (https://...)',
 	comment: 'No more than 2000 characters',
 	confirmText: 'The text does not match',
+	longText: 'No more than 2000 characters',
+	maxParticipants: 'A number from 1 to 999, or leave empty',
+	score: 'Rate from 1 to 5',
+	imagesLimit: 'No more than 5 images',
+	imageSize: 'Image is larger than 10 MB',
+	reviewComment: 'Explain what should be changed (from 5 characters)',
 }
 
 const ru = {
@@ -46,9 +52,15 @@ const ru = {
 	tagsLimit: 'Не больше 10 тегов',
 	fileSize: 'Файл больше 50 МБ',
 	fileType: 'Неподдерживаемый тип файла',
-	githubUrl: 'Укажите ссылку на репозиторий GitHub',
+	repositoryUrl: 'Укажите ссылку на репозиторий (https://...)',
 	comment: 'Не больше 2000 символов',
 	confirmText: 'Текст не совпадает',
+	longText: 'Не больше 2000 символов',
+	maxParticipants: 'Число от 1 до 999 или оставьте пустым',
+	score: 'Поставьте оценку от 1 до 5',
+	imagesLimit: 'Не больше 5 изображений',
+	imageSize: 'Изображение больше 10 МБ',
+	reviewComment: 'Поясните, что нужно изменить (от 5 символов)',
 }
 
 const validation = defineTranslations({ en, ru })

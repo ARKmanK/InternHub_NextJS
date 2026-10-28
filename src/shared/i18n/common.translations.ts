@@ -17,6 +17,7 @@ const en = {
 	emailNotVerified: 'Confirm your email first — we sent you a link',
 	innTaken: 'An organization with this INN is already registered. Contact the administrator',
 	invalidToken: 'The link is invalid or expired. Request a new one',
+	noSlots: 'All places for this task are taken',
 	checkEmailTitle: 'Check your email',
 	checkEmailDescription:
 		'We sent a link to {email}. Follow it to continue. If the email is not there, check the Spam folder',
@@ -38,6 +39,7 @@ const ru = {
 	emailNotVerified: 'Сначала подтвердите почту — мы отправили вам ссылку',
 	innTaken: 'Организация с таким ИНН уже зарегистрирована. Обратитесь к администратору',
 	invalidToken: 'Ссылка недействительна или устарела. Запросите новую',
+	noSlots: 'Все места на эту задачу уже заняты',
 	checkEmailTitle: 'Проверьте почту',
 	checkEmailDescription:
 		'Мы отправили ссылку на {email}. Перейдите по ней, чтобы продолжить. Если письма нет — загляните в «Спам»',

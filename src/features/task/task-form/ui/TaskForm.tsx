@@ -11,7 +11,8 @@ import { ARCHIVE_EXTENSIONS, routes } from '@/shared/config'
 import { Button } from '@/shared/ui/button'
 import { Calendar } from '@/shared/ui/calendar'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/shared/ui/card'
-import { Field, FieldGroup, FieldLabel } from '@/shared/ui/field'
+import { Checkbox } from '@/shared/ui/checkbox'
+import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/shared/ui/field'
 import { FilePicker } from '@/shared/ui/file-picker'
 import { FormFieldError } from '@/shared/ui/form-field-error'
 import { Input } from '@/shared/ui/input'
@@ -26,12 +27,27 @@ import { taskFormToFormData } from '../lib/toFormData'
 
 type TaskFormProps =
 	| { mode: 'create'; tagSuggestions: string[] }
-	| { mode: 'edit'; taskId: number; defaultValues: TaskFormValues; tagSuggestions: string[] }
+	| {
+			mode: 'edit'
+			taskId: number
+			defaultValues: TaskFormValues
+			tagSuggestions: string[]
+			/** У задания уже есть архив: если новый не выбран, он остаётся */
+			hasArchive: boolean
+	  }
 
 const difficulties = [
 	{ value: '1', label: 'lvl1' },
 	{ value: '2', label: 'lvl2' },
 	{ value: '3', label: 'lvl3' },
+] as const
+
+const longTextFields = ['expectedResult', 'criteria'] as const
+
+const ipTermsOptions = [
+	{ value: 'open', label: 'ipOpen' },
+	{ value: 'portfolio_only', label: 'ipPortfolioOnly' },
+	{ value: 'nda', label: 'ipNda' },
 ] as const
 
 /** Одна форма для создания и редактирования задания (раньше было две копии). */
@@ -101,6 +117,93 @@ export function TaskForm(props: TaskFormProps) {
 										aria-invalid={fieldState.invalid}
 									/>
 									<FormFieldError error={fieldState.error} />
+								</Field>
+							)}
+						/>
+						{longTextFields.map(name => (
+							<Controller
+								key={name}
+								name={name}
+								control={form.control}
+								render={({ field, fieldState }) => (
+									<Field data-invalid={fieldState.invalid}>
+										<FieldLabel htmlFor={`task-form-${name}`}>{t(name)}</FieldLabel>
+										<Textarea
+											{...field}
+											id={`task-form-${name}`}
+											placeholder={t(`${name}Placeholder`)}
+											aria-invalid={fieldState.invalid}
+										/>
+										<FormFieldError error={fieldState.error} />
+									</Field>
+								)}
+							/>
+						))}
+						<div className='grid gap-6 sm:grid-cols-2'>
+							<Controller
+								name='ipTerms'
+								control={form.control}
+								render={({ field, fieldState }) => (
+									<Field data-invalid={fieldState.invalid}>
+										<FieldLabel htmlFor='task-form-ipTerms'>{t('ipTerms')}</FieldLabel>
+										<Select
+											name={field.name}
+											value={field.value}
+											onValueChange={value => {
+												field.onChange(value)
+												// Для NDA код обычно нельзя выкладывать — ссылка на репозиторий не обязательна
+												form.setValue('requireRepository', value === 'open')
+											}}
+										>
+											<SelectTrigger id='task-form-ipTerms' className='w-full'>
+												<SelectValue />
+											</SelectTrigger>
+											<SelectContent>
+												{ipTermsOptions.map(({ value, label }) => (
+													<SelectItem key={value} value={value}>
+														{t(label)}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+										<FieldDescription>{t('ipTermsHint')}</FieldDescription>
+										<FormFieldError error={fieldState.error} />
+									</Field>
+								)}
+							/>
+							<Controller
+								name='maxParticipants'
+								control={form.control}
+								render={({ field, fieldState }) => (
+									<Field data-invalid={fieldState.invalid}>
+										<FieldLabel htmlFor='task-form-maxParticipants'>
+											{t('maxParticipants')}
+										</FieldLabel>
+										<Input
+											{...field}
+											id='task-form-maxParticipants'
+											inputMode='numeric'
+											placeholder={t('maxParticipantsPlaceholder')}
+											aria-invalid={fieldState.invalid}
+										/>
+										<FormFieldError error={fieldState.error} />
+									</Field>
+								)}
+							/>
+						</div>
+						<Controller
+							name='requireRepository'
+							control={form.control}
+							render={({ field }) => (
+								<Field orientation='horizontal'>
+									<Checkbox
+										id='task-form-requireRepository'
+										checked={field.value}
+										onCheckedChange={checked => field.onChange(checked === true)}
+									/>
+									<FieldLabel htmlFor='task-form-requireRepository'>
+										{t('requireRepository')}
+									</FieldLabel>
 								</Field>
 							)}
 						/>
@@ -210,6 +313,9 @@ export function TaskForm(props: TaskFormProps) {
 										removeLabel={t('removeFile')}
 										invalid={fieldState.invalid}
 									/>
+									{props.mode === 'edit' && props.hasArchive && !field.value && (
+										<FieldDescription>{t('archiveKept')}</FieldDescription>
+									)}
 									<FormFieldError error={fieldState.error} />
 								</Field>
 							)}

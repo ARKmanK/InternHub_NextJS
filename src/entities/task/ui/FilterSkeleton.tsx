@@ -1,17 +1,16 @@
-import { Card, CardContent, CardFooter } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Card, CardContent, CardFooter } from '@/shared/ui/card'
+import { Skeleton } from '@/shared/ui/skeleton'
 
-export default function FilterSkeleton() {
+export function FilterSkeleton() {
 	return (
 		<Card>
-			<CardContent className='flex flex-col'>
-				<Skeleton className='w-20 h-6' />
-				<Skeleton className='w-20 h-6' />
-				<Skeleton className='w-20 h-6' />
-				<Skeleton className='w-20 h-6' />
+			<CardContent className='flex flex-col gap-3'>
+				{Array.from({ length: 4 }, (_, index) => (
+					<Skeleton key={index} className='h-9 w-full' />
+				))}
 			</CardContent>
 			<CardFooter>
-				<Skeleton className='h-12 flex-1' />
+				<Skeleton className='h-9 flex-1' />
 			</CardFooter>
 		</Card>
 	)

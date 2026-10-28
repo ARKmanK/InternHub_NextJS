@@ -1,0 +1,34 @@
+import type { ReactNode } from 'react'
+import type { Metadata } from 'next'
+import { Geist, Geist_Mono } from 'next/font/google'
+import { getLocale } from 'next-intl/server'
+import { Footer } from '@/widgets/footer'
+import { Header } from '@/widgets/header'
+import { AppProviders } from './AppProviders'
+import '../styles/globals.css'
+
+const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin', 'cyrillic'] })
+const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin', 'cyrillic'] })
+
+export const rootMetadata: Metadata = {
+	title: { template: '%s — InternHub', default: 'InternHub' },
+	description: 'Платформа проектного взаимодействия студентов и работодателей',
+}
+
+export async function RootLayout({ children }: { children: ReactNode }) {
+	const locale = await getLocale()
+
+	return (
+		<html lang={locale} suppressHydrationWarning>
+			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+				<AppProviders>
+					<div className='flex min-h-screen flex-col'>
+						<Header />
+						<main className='mx-auto w-full max-w-6xl flex-1 px-4 py-8'>{children}</main>
+						<Footer />
+					</div>
+				</AppProviders>
+			</body>
+		</html>
+	)
+}

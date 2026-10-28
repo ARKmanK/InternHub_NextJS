@@ -1,0 +1,4 @@
+export { StudentDashboard } from './ui/StudentDashboard'
+export { EmployerDashboard } from './ui/EmployerDashboard'
+export { AdminDashboard } from './ui/AdminDashboard'
+export { default as translations } from './ui/translations'

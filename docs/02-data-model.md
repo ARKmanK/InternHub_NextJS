@@ -25,6 +25,8 @@ erDiagram
     Task ||--o{ Submission : "решения"
     Submission ||--o{ SubmissionFile : "файлы"
     Submission ||--o{ SubmissionStatusChange : "история"
+    Task }o--o{ Competency : "развивает"
+    StudentProfile }o--o{ Competency : "интересы"
     User ||--o{ Practice : "ведёт (преподаватель)"
     Practice ||--o{ PracticeStudent : "студенты"
     User ||--o{ PracticeStudent : ""
@@ -119,6 +121,12 @@ erDiagram
         SubmissionStatus fromStatus
         SubmissionStatus toStatus
         string changedById FK
+    }
+    Competency {
+        int id PK
+        string code UK
+        string nameRu
+        string nameEn
     }
     Practice {
         int id PK

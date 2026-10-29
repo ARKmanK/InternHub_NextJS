@@ -1,5 +1,6 @@
 import type { Prisma } from '@/shared/api'
 import { IpTerms, TaskDifficulty, TaskStatus } from '@/shared/api'
+import { competencySelect, toCompetencyDto } from '@/entities/competency/@x/task'
 import type { ITask } from '../model/ITask'
 
 /**
@@ -26,6 +27,7 @@ export const taskSelect = (viewerId?: string) =>
 		publishedAt: true,
 		organization: { select: { name: true } },
 		tags: { select: { name: true }, orderBy: { name: 'asc' } },
+		competencies: { select: competencySelect, orderBy: { nameRu: 'asc' } },
 		_count: { select: { favorites: true } },
 		// Избранное только текущего зрителя: 0 или 1 запись
 		favorites: viewerId ? { where: { studentId: viewerId }, select: { taskId: true } } : false,
@@ -33,7 +35,7 @@ export const taskSelect = (viewerId?: string) =>
 
 type TaskRow = Prisma.TaskGetPayload<{ select: ReturnType<typeof taskSelect> }>
 
-const difficultyToDto = {
+export const difficultyToDto = {
 	[TaskDifficulty.EASY]: 1,
 	[TaskDifficulty.MEDIUM]: 2,
 	[TaskDifficulty.HARD]: 3,
@@ -77,6 +79,7 @@ export const toTaskDto = (row: TaskRow): ITask => ({
 	companyName: row.organization.name,
 	trackingCount: row._count.favorites,
 	tags: row.tags.map(tag => tag.name),
+	competencies: row.competencies.map(toCompetencyDto),
 	hasArchive: row.archiveKey !== null,
 	createdAt: row.createdAt.toISOString(),
 	publishedAt: row.publishedAt?.toISOString() ?? null,

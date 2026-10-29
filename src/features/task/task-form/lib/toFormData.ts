@@ -16,6 +16,7 @@ export const taskFormToFormData = (values: TaskFormValues) => {
 	formData.set('maxParticipants', values.maxParticipants)
 	if (values.deadline) formData.set('deadline', values.deadline.toISOString())
 	values.tags.forEach(tag => formData.append('tags', tag))
+	values.competencies.forEach(id => formData.append('competencies', String(id)))
 	if (values.archive) formData.set('archive', values.archive)
 	return formData
 }
@@ -40,6 +41,7 @@ export const formDataToTaskForm = (formData: FormData) => {
 		maxParticipants: text('maxParticipants'),
 		deadline: deadline ? new Date(deadline) : null,
 		tags: formData.getAll('tags').filter(tag => typeof tag === 'string'),
+		competencies: formData.getAll('competencies').map(Number),
 		archive: archive instanceof File && archive.size > 0 ? archive : null,
 	}
 }

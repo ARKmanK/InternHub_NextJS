@@ -34,6 +34,15 @@ const connectTags = (tags: string[]): Prisma.TagCreateNestedManyWithoutTasksInpu
 	connectOrCreate: [...new Set(tags)].map(name => ({ where: { name }, create: { name } })),
 })
 
+/** Компетенции только из справочника: несуществующие id молча отбрасываются. */
+const existingCompetencies = async (ids: number[]) => {
+	const rows = await db.competency.findMany({
+		where: { id: { in: [...new Set(ids)] } },
+		select: { id: true },
+	})
+	return rows
+}
+
 /** Кто может публиковать: работодатель подтверждённой организации. */
 const getPublisher = async () => {
 	const user = await getCurrentUser()
@@ -58,6 +67,7 @@ export async function createTaskAction(formData: FormData): Promise<ActionResult
 	const values = parseForm(formData)
 	if (!values) return { ok: false, error: 'invalidData' }
 
+	const competencies = await existingCompetencies(values.competencies)
 	const archiveKey = values.archive ? await saveUpload(values.archive, 'tasks') : null
 
 	try {
@@ -70,6 +80,7 @@ export async function createTaskAction(formData: FormData): Promise<ActionResult
 					authorId: publisher.id,
 					organizationId: publisher.organizationId,
 					tags: connectTags(values.tags),
+					competencies: { connect: competencies },
 				},
 				select: { id: true, title: true },
 			})
@@ -123,6 +134,7 @@ export async function updateTaskAction(
 	const values = parseForm(formData)
 	if (!values) return { ok: false, error: 'invalidData' }
 
+	const competencies = await existingCompetencies(values.competencies)
 	const newArchiveKey = values.archive ? await saveUpload(values.archive, 'tasks') : null
 
 	try {
@@ -134,6 +146,7 @@ export async function updateTaskAction(
 					...(newArchiveKey && { archiveKey: newArchiveKey }),
 					// set: [] — сначала отвязать все теги, затем подключить актуальные
 					tags: { set: [], ...connectTags(values.tags) },
+					competencies: { set: competencies },
 				},
 			})
 			if (task.status !== TaskStatus.MODERATION) {

@@ -1,6 +1,8 @@
 import { defineTranslations } from '@/shared/i18n'
 
 const en = {
+	competencies: 'Confirmed competencies',
+	solutions: 'Accepted solutions',
 	metaTitle: 'Portfolio',
 	groupCourse: 'Group {group}, year {course}',
 	summary:
@@ -10,6 +12,8 @@ const en = {
 }
 
 const ru = {
+	competencies: 'Подтверждённые компетенции',
+	solutions: 'Принятые решения',
 	metaTitle: 'Портфолио',
 	groupCourse: 'Группа {group}, {course} курс',
 	summary:

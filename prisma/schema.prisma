@@ -78,7 +78,9 @@ model StudentProfile {
   group     String
   course    Int
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Компетенции, которые студент хочет развивать — сигнал для рекомендаций.
+  interests Competency[] @relation("StudentInterests")
 
   @@map("student_profiles")
 }
@@ -184,6 +186,7 @@ model Task {
   organization  Organization       @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   author        User               @relation("TaskAuthor", fields: [authorId], references: [id], onDelete: Restrict)
   tags          Tag[]
+  competencies  Competency[]       @relation("TaskCompetencies")
   favorites     Favorite[]
   applications  Application[]
   submissions   Submission[]
@@ -203,6 +206,21 @@ model Tag {
   tasks Task[]
 
   @@map("tags")
+}
+
+/// Справочник компетенций. В отличие от тегов (технологии, свободный ввод) —
+/// фиксированный список, который ведёт платформа: по нему строится профиль студента.
+model Competency {
+  id     Int    @id @default(autoincrement())
+  /// Стабильный ключ для кода и сида, не меняется при переименовании
+  code   String @unique @db.VarChar(40)
+  nameRu String @map("name_ru") @db.VarChar(60)
+  nameEn String @map("name_en") @db.VarChar(60)
+
+  tasks              Task[]           @relation("TaskCompetencies")
+  interestedStudents StudentProfile[] @relation("StudentInterests")
+
+  @@map("competencies")
 }
 
 /// История статусов задания: кто, когда и с каким комментарием перевёл (в т.ч. решения модератора).

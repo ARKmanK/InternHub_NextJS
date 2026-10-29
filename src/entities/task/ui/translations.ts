@@ -1,6 +1,7 @@
 import { defineTranslations } from '@/shared/i18n'
 
 const en = {
+	competencies: 'Competencies',
 	tracking: 'Now tracking',
 	isMine: 'My task',
 	deadline: 'Deadline',
@@ -22,6 +23,7 @@ const en = {
 }
 
 const ru = {
+	competencies: 'Компетенции',
 	tracking: 'Сейчас отслеживают',
 	isMine: 'Моя задача',
 	deadline: 'Срок до',

@@ -4,10 +4,11 @@ import { useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useFormatter, useTranslations } from 'next-intl'
+import { useFormatter, useLocale, useTranslations } from 'next-intl'
 import { CalendarIcon, ChevronDownIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { ARCHIVE_EXTENSIONS, routes } from '@/shared/config'
+import type { Locale } from '@/shared/i18n'
 import { Button } from '@/shared/ui/button'
 import { Calendar } from '@/shared/ui/calendar'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/shared/ui/card'
@@ -16,25 +17,34 @@ import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/shared/ui/fie
 import { FilePicker } from '@/shared/ui/file-picker'
 import { FormFieldError } from '@/shared/ui/form-field-error'
 import { Input } from '@/shared/ui/input'
+import { Label } from '@/shared/ui/label'
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select'
 import { Spinner } from '@/shared/ui/spinner'
 import { TagInput } from '@/shared/ui/tag-input'
 import { Textarea } from '@/shared/ui/textarea'
+import { MAX_TASK_COMPETENCIES, type ICompetency } from '@/entities/competency'
 import { emptyTaskForm, taskFormSchema, type TaskFormValues } from '@/entities/task'
 import { createTaskAction, updateTaskAction } from '../api/taskFormActions'
 import { taskFormToFormData } from '../lib/toFormData'
 
-type TaskFormProps =
-	| { mode: 'create'; tagSuggestions: string[] }
-	| {
-			mode: 'edit'
-			taskId: number
-			defaultValues: TaskFormValues
-			tagSuggestions: string[]
-			/** У задания уже есть архив: если новый не выбран, он остаётся */
-			hasArchive: boolean
-	  }
+type TaskFormOptions = {
+	tagSuggestions: string[]
+	/** Справочник компетенций */
+	competencyOptions: ICompetency[]
+}
+
+type TaskFormProps = TaskFormOptions &
+	(
+		| { mode: 'create' }
+		| {
+				mode: 'edit'
+				taskId: number
+				defaultValues: TaskFormValues
+				/** У задания уже есть архив: если новый не выбран, он остаётся */
+				hasArchive: boolean
+		  }
+	)
 
 const difficulties = [
 	{ value: '1', label: 'lvl1' },
@@ -55,6 +65,7 @@ export function TaskForm(props: TaskFormProps) {
 	const t = useTranslations('TaskForm')
 	const tCommon = useTranslations('Common')
 	const format = useFormatter()
+	const locale = useLocale() as Locale
 	const router = useRouter()
 	const [isPending, startTransition] = useTransition()
 
@@ -277,6 +288,47 @@ export function TaskForm(props: TaskFormProps) {
 								)}
 							/>
 						</div>
+						<Controller
+							name='competencies'
+							control={form.control}
+							render={({ field, fieldState }) => (
+								<Field data-invalid={fieldState.invalid}>
+									<FieldLabel id='task-form-competencies'>{t('competencies')}</FieldLabel>
+									<FieldDescription>{t('competenciesHint')}</FieldDescription>
+									<div
+										role='group'
+										aria-labelledby='task-form-competencies'
+										className='grid gap-2 sm:grid-cols-2'
+									>
+										{props.competencyOptions.map(competency => {
+											const checked = field.value.includes(competency.id)
+											const id = `task-form-competency-${competency.id}`
+											return (
+												<div key={competency.id} className='flex items-center gap-2'>
+													<Checkbox
+														id={id}
+														checked={checked}
+														// Шестую не выбрать: лимит виден сразу, а не после отправки
+														disabled={!checked && field.value.length >= MAX_TASK_COMPETENCIES}
+														onCheckedChange={next =>
+															field.onChange(
+																next
+																	? [...field.value, competency.id]
+																	: field.value.filter(value => value !== competency.id),
+															)
+														}
+													/>
+													<Label htmlFor={id} className='font-normal'>
+														{competency.name[locale]}
+													</Label>
+												</div>
+											)
+										})}
+									</div>
+									<FormFieldError error={fieldState.error} />
+								</Field>
+							)}
+						/>
 						<Controller
 							name='tags'
 							control={form.control}

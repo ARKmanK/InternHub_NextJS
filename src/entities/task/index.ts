@@ -14,6 +14,15 @@ export {
 	type TaskSearchParams,
 } from './model/taskFilters'
 export type { TasksPage, TaskFilterOptions } from './api/taskQueries'
+export {
+	rankTasks,
+	scoreTask,
+	targetDifficulty,
+	RECOMMENDATION_WEIGHTS,
+	type IRecommendedTask,
+	type RecommendationReason,
+	type StudentSignals,
+} from './lib/rankTasks'
 export { TaskCard } from './ui/TaskCard'
 export { TaskSkeleton, TaskListSkeleton } from './ui/TaskSkeleton'
 export { FilterSkeleton } from './ui/FilterSkeleton'

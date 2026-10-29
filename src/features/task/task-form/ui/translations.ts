@@ -26,6 +26,9 @@ const en = {
 	deadline: 'Deadline',
 	chooseDate: 'No deadline',
 	clearDate: 'Remove deadline',
+	competencies: 'Competencies',
+	competenciesHint:
+		'What the student will practice — up to 5. The competency profile and recommendations are built from them',
 	tags: 'Tags',
 	tagPlaceholder: 'New tag',
 	addTag: 'Add',
@@ -67,6 +70,9 @@ const ru = {
 	deadline: 'Срок выполнения',
 	chooseDate: 'Без срока',
 	clearDate: 'Убрать срок',
+	competencies: 'Компетенции',
+	competenciesHint:
+		'Что студент прокачает — до 5. По ним строятся профиль компетенций и рекомендации',
 	tags: 'Теги',
 	tagPlaceholder: 'Новый тег',
 	addTag: 'Добавить',

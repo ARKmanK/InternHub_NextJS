@@ -3,6 +3,8 @@ import { getTranslations } from 'next-intl/server'
 import { Award } from 'lucide-react'
 import { BackButton } from '@/shared/ui/back-button'
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle } from '@/shared/ui/empty'
+import { CompetencyProfile } from '@/entities/competency'
+import { getStudentCompetencies } from '@/entities/competency/index.server'
 import { PortfolioCard } from '@/entities/submission'
 import { getPortfolio } from '@/entities/submission/index.server'
 import { getCurrentUser, getStudentProfile } from '@/entities/user/index.server'
@@ -26,7 +28,10 @@ export async function StudentPortfolioPage({ studentId }: { studentId: string })
 	if (!student) notFound()
 
 	const t = await getTranslations('StudentPortfolioPage')
-	const items = await getPortfolio(studentId)
+	const [items, competencies] = await Promise.all([
+		getPortfolio(studentId),
+		getStudentCompetencies(studentId),
+	])
 	const scores = items.flatMap(item => (item.score === null ? [] : [item.score]))
 	const averageScore = scores.length
 		? (scores.reduce((sum, score) => sum + score, 0) / scores.length).toFixed(1)
@@ -47,6 +52,11 @@ export async function StudentPortfolioPage({ studentId }: { studentId: string })
 					{averageScore && ` · ${t('averageScore', { score: averageScore })}`}
 				</p>
 			</header>
+			<section className='flex flex-col gap-3'>
+				<h2 className='text-lg font-semibold'>{t('competencies')}</h2>
+				<CompetencyProfile items={competencies} />
+			</section>
+			<h2 className='text-lg font-semibold'>{t('solutions')}</h2>
 			{items.length === 0 ? (
 				<Empty className='border border-dashed'>
 					<EmptyHeader>

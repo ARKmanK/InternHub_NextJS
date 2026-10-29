@@ -1,5 +1,6 @@
 import { commonTranslations, validationTranslations, type Locale } from '@/shared/i18n'
 import { translations as applicationStatus } from '@/entities/application'
+import { translations as competency } from '@/entities/competency'
 import { translations as notificationText } from '@/entities/notification'
 import { translations as organizationCard } from '@/entities/organization'
 import { translations as practice } from '@/entities/practice'
@@ -18,6 +19,7 @@ import { translations as registerStudentForm } from '@/features/auth/register-st
 import { translations as resetPassword } from '@/features/auth/reset-password'
 import { translations as langSwitch } from '@/features/lang-switch'
 import { translations as notifications } from '@/features/notifications'
+import { translations as editInterests } from '@/features/student/edit-interests'
 import { translations as gradeStudent } from '@/features/practice/grade-student'
 import { translations as manageStudents } from '@/features/practice/manage-students'
 import { translations as manageTasks } from '@/features/practice/manage-tasks'
@@ -61,6 +63,7 @@ const registry = {
 	Validation: validationTranslations,
 	// entities
 	ApplicationStatus: applicationStatus,
+	Competency: competency,
 	NotificationText: notificationText,
 	OrganizationCard: organizationCard,
 	Practice: practice,
@@ -88,6 +91,7 @@ const registry = {
 	TaskModeration: taskModeration,
 	FavoriteButton: favoriteButton,
 	InviteTeacher: inviteTeacher,
+	EditInterests: editInterests,
 	PracticeForm: practiceForm,
 	ManageStudents: manageStudents,
 	ManageTasks: manageTasks,

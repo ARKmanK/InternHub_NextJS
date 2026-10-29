@@ -6,6 +6,7 @@ import { defineTranslations } from './define-translations'
  * Так одна схема работает и на клиенте, и на сервере, на любом языке.
  */
 const en = {
+	competenciesLimit: 'Choose up to 5 competencies',
 	required: 'Required field',
 	email: 'Enter a valid email',
 	password: 'At least 8 characters',
@@ -38,6 +39,7 @@ const en = {
 }
 
 const ru = {
+	competenciesLimit: 'Выберите не больше 5 компетенций',
 	required: 'Обязательное поле',
 	email: 'Введите корректный email',
 	password: 'Минимум 8 символов',

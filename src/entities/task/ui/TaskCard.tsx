@@ -14,6 +14,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/shared/ui/card'
+import { CompetencyBadge } from '@/entities/competency/@x/task'
 import { Tag } from '@/entities/tag/@x/task'
 import type { ITask } from '../model/ITask'
 
@@ -85,6 +86,13 @@ export function TaskCard({
 						<h3 className='font-medium'>{t('criteria')}</h3>
 						<p className='whitespace-pre-line text-muted-foreground'>{task.criteria}</p>
 					</section>
+				)}
+				{task.competencies.length > 0 && (
+					<div className='flex flex-wrap gap-1' aria-label={t('competencies')}>
+						{task.competencies.map(competency => (
+							<CompetencyBadge key={competency.id} competency={competency} />
+						))}
+					</div>
 				)}
 				{task.tags.length > 0 && (
 					<div className='flex flex-wrap gap-1'>

@@ -1,5 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
 import { routes } from '@/shared/config'
+import { getCompetencies } from '@/entities/competency/index.server'
 import { getTags } from '@/entities/tag/index.server'
 import { getTaskById } from '@/entities/task/index.server'
 import { getCurrentUser } from '@/entities/user/index.server'
@@ -14,7 +15,11 @@ export async function TaskEditPage({ id }: { id: number }) {
 		redirect(routes.profile())
 	}
 
-	const [task, tags] = await Promise.all([getTaskById(id, user), getTags()])
+	const [task, tags, competencies] = await Promise.all([
+		getTaskById(id, user),
+		getTags(),
+		getCompetencies(),
+	])
 	// Чужое задание выглядит так же, как несуществующее — не раскрываем, что оно есть
 	if (!task || task.authorId !== user.id) notFound()
 	if (!EDITABLE.includes(task.status)) redirect(routes.task(task.id))
@@ -24,6 +29,7 @@ export async function TaskEditPage({ id }: { id: number }) {
 			mode='edit'
 			taskId={task.id}
 			tagSuggestions={tags.map(tag => tag.label)}
+			competencyOptions={competencies}
 			hasArchive={task.hasArchive}
 			defaultValues={{
 				title: task.title,
@@ -36,6 +42,7 @@ export async function TaskEditPage({ id }: { id: number }) {
 				maxParticipants: task.maxParticipants ? String(task.maxParticipants) : '',
 				deadline: task.deadline ? new Date(task.deadline) : null,
 				tags: task.tags,
+				competencies: task.competencies.map(competency => competency.id),
 				archive: null,
 			}}
 		/>

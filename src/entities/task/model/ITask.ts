@@ -1,3 +1,5 @@
+import type { ICompetency } from '@/entities/competency/@x/task'
+
 /**
  * Жизненный цикл задания (docs/02-data-model.md, диаграмма состояний):
  * draft → moderation → published → closed → archived; модератор может вернуть moderation → draft.
@@ -34,6 +36,7 @@ export interface ITask {
 	companyName: string
 	trackingCount: number
 	tags: string[]
+	competencies: ICompetency[]
 	hasArchive: boolean
 	createdAt: string
 	publishedAt: string | null

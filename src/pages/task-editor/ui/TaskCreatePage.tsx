@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { routes } from '@/shared/config'
+import { getCompetencies } from '@/entities/competency/index.server'
 import { getTags } from '@/entities/tag/index.server'
 import { getCurrentUser } from '@/entities/user/index.server'
 import { TaskForm } from '@/features/task/task-form'
@@ -12,7 +13,13 @@ export async function TaskCreatePage() {
 		redirect(routes.profile())
 	}
 
-	const tags = await getTags()
+	const [tags, competencies] = await Promise.all([getTags(), getCompetencies()])
 
-	return <TaskForm mode='create' tagSuggestions={tags.map(tag => tag.label)} />
+	return (
+		<TaskForm
+			mode='create'
+			tagSuggestions={tags.map(tag => tag.label)}
+			competencyOptions={competencies}
+		/>
+	)
 }

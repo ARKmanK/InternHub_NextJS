@@ -60,6 +60,39 @@ const TAGS = [
 	'Тестирование',
 ]
 
+// Справочник компетенций: code — стабильный ключ, названия на двух языках
+const COMPETENCIES = [
+	{ code: 'frontend', nameRu: 'Frontend-разработка', nameEn: 'Frontend development' },
+	{ code: 'backend', nameRu: 'Backend-разработка', nameEn: 'Backend development' },
+	{ code: 'databases', nameRu: 'Проектирование баз данных', nameEn: 'Database design' },
+	{ code: 'testing', nameRu: 'Тестирование ПО', nameEn: 'Software testing' },
+	{ code: 'ui-design', nameRu: 'UI/UX-дизайн', nameEn: 'UI/UX design' },
+	{ code: 'data-analysis', nameRu: 'Анализ данных', nameEn: 'Data analysis' },
+	{ code: 'machine-learning', nameRu: 'Машинное обучение', nameEn: 'Machine learning' },
+	{ code: 'marketing', nameRu: 'Маркетинг и коммуникации', nameEn: 'Marketing and communications' },
+	{ code: 'engineering', nameRu: 'Инженерные расчёты', nameEn: 'Engineering calculations' },
+	{ code: 'cad', nameRu: '3D-моделирование и САПР', nameEn: '3D modelling and CAD' },
+	{ code: 'documentation', nameRu: 'Техническая документация', nameEn: 'Technical writing' },
+]
+
+// Какие компетенции развивает каждое задание (по названию задания)
+const TASK_COMPETENCIES: Record<string, string[]> = {
+	'Лендинг для сервиса онлайн-записи': ['frontend', 'ui-design'],
+	'REST API для учёта заявок': ['backend', 'databases', 'documentation'],
+	'Панель мониторинга заказов': ['frontend', 'data-analysis'],
+	'Автотесты для формы регистрации': ['testing', 'frontend'],
+	'Миграция базы данных интернет-магазина': ['databases'],
+	'Анализ эффективности рекламной кампании': ['data-analysis', 'marketing'],
+	'Контент-план для соцсетей на месяц': ['marketing'],
+	'Сегментация клиентов по истории покупок': ['machine-learning', 'data-analysis'],
+	'Редизайн email-рассылки': ['ui-design', 'marketing'],
+	'3D-модель кронштейна крепления': ['cad', 'engineering'],
+	'Расчёт нагрузки на ленточный конвейер': ['engineering'],
+	'Учёт простоев оборудования в таблице': ['data-analysis'],
+	'Прогноз отказов по данным датчиков': ['machine-learning', 'data-analysis'],
+	'Инструкция по технике безопасности в видео': ['documentation'],
+}
+
 async function clear() {
 	// Порядок важен: сначала зависимые таблицы
 	await db.practiceTask.deleteMany()
@@ -73,6 +106,7 @@ async function clear() {
 	await db.taskStatusChange.deleteMany()
 	await db.task.deleteMany()
 	await db.tag.deleteMany()
+	await db.competency.deleteMany()
 	await db.notification.deleteMany()
 	await db.employerProfile.deleteMany()
 	await db.studentProfile.deleteMany()
@@ -87,6 +121,7 @@ async function main() {
 	await clear()
 
 	await db.tag.createMany({ data: TAGS.map(name => ({ name })) })
+	await db.competency.createMany({ data: COMPETENCIES })
 
 	// ─── Пользователи ─────────────────────────────────────────────────────────
 	const admin = await db.user.create({
@@ -109,18 +144,33 @@ async function main() {
 
 	const students = await Promise.all(
 		[
-			{ firstName: 'Анна', lastName: 'Соколова', group: 'ПМИ-22', course: 3 },
-			{ firstName: 'Илья', lastName: 'Ветров', group: 'ПМИ-22', course: 3 },
-			{ firstName: 'Мария', lastName: 'Кедрова', group: 'ЭК-21', course: 4 },
-			{ firstName: 'Денис', lastName: 'Орлов', group: 'ИВТ-23', course: 2 },
-		].map((profile, index) =>
+			// interests — что студент хочет развивать (коды компетенций)
+			{
+				firstName: 'Анна',
+				lastName: 'Соколова',
+				group: 'ПМИ-22',
+				course: 3,
+				interests: ['frontend', 'data-analysis'],
+			},
+			{ firstName: 'Илья', lastName: 'Ветров', group: 'ПМИ-22', course: 3, interests: ['backend'] },
+			{
+				firstName: 'Мария',
+				lastName: 'Кедрова',
+				group: 'ЭК-21',
+				course: 4,
+				interests: ['marketing'],
+			},
+			{ firstName: 'Денис', lastName: 'Орлов', group: 'ИВТ-23', course: 2, interests: [] },
+		].map(({ interests, ...profile }, index) =>
 			db.user.create({
 				data: {
 					name: `${profile.firstName} ${profile.lastName}`,
 					email: `student${index + 1}@internhub.local`,
 					emailVerified: true,
 					role: UserRole.STUDENT,
-					studentProfile: { create: profile },
+					studentProfile: {
+						create: { ...profile, interests: { connect: interests.map(code => ({ code })) } },
+					},
 				},
 			}),
 		),
@@ -400,6 +450,9 @@ async function main() {
 				publishedAt: task.publishedDaysAgo ? daysAgo(task.publishedDaysAgo) : null,
 				createdAt: daysAgo((task.publishedDaysAgo ?? 0) + 2),
 				tags: { connect: task.tags.map(name => ({ name })) },
+				competencies: {
+					connect: (TASK_COMPETENCIES[task.title] ?? []).map(code => ({ code })),
+				},
 			},
 		})
 

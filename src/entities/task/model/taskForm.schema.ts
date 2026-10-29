@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { ARCHIVE_EXTENSIONS, MAX_FILE_SIZE, hasExtension } from '@/shared/config'
+import { MAX_TASK_COMPETENCIES } from '@/entities/competency/@x/task'
 import { IP_TERMS } from './ITask'
 
 // Необязательный текст — пустая строка, а не undefined: так тип входа формы совпадает с типом выхода,
@@ -32,6 +33,10 @@ export const taskFormSchema = z.object({
 	tags: z
 		.array(z.string().trim().min(2, { error: 'tag' }).max(20, { error: 'tag' }))
 		.max(10, { error: 'tagsLimit' }),
+	// id из справочника; что такие компетенции существуют, проверит server action
+	competencies: z
+		.array(z.number().int().positive())
+		.max(MAX_TASK_COMPETENCIES, { error: 'competenciesLimit' }),
 	archive: z
 		.instanceof(File)
 		.refine(file => file.size <= MAX_FILE_SIZE, { error: 'fileSize' })
@@ -52,5 +57,6 @@ export const emptyTaskForm: TaskFormValues = {
 	maxParticipants: '',
 	deadline: null,
 	tags: [],
+	competencies: [],
 	archive: null,
 }

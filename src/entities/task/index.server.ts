@@ -12,4 +12,5 @@ export {
 } from './api/taskQueries'
 export { changeTaskStatus, canChangeTaskStatus } from './api/taskStatus'
 export { getTaskArchive } from './api/taskArchive'
+export { getRecommendedTasks } from './api/taskRecommendations'
 export { difficultyFromDto } from './api/taskMapper'

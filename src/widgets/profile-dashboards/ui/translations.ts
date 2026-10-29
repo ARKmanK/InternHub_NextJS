@@ -27,6 +27,14 @@ const en = {
 	noPractices: 'No practices yet',
 	myPractices: 'My practices',
 	notStarted: 'Not started',
+	recommended: 'Recommended',
+	noRecommendations: 'Nothing to recommend yet — choose interests below or add tasks to favorites',
+	reasonInterest: 'Your interest: {name}',
+	reasonGrowth: 'Develops your competency: {name}',
+	reasonSimilar: 'Similar to your tasks: {tags}',
+	reasonLevel: 'Matches your level',
+	myCompetencies: 'My competencies',
+	interests: 'What I want to develop',
 }
 
 const ru = {
@@ -56,6 +64,15 @@ const ru = {
 	noPractices: 'Практик пока нет',
 	myPractices: 'Мои практики',
 	notStarted: 'Не начато',
+	recommended: 'Рекомендации',
+	noRecommendations:
+		'Пока нечего рекомендовать — отметьте интересы ниже или добавьте задания в избранное',
+	reasonInterest: 'Ваш интерес: {name}',
+	reasonGrowth: 'Развивает вашу компетенцию: {name}',
+	reasonSimilar: 'Похоже на ваши задания: {tags}',
+	reasonLevel: 'Подходит по уровню',
+	myCompetencies: 'Мои компетенции',
+	interests: 'Что хочу развивать',
 }
 
 export default defineTranslations({ en, ru })

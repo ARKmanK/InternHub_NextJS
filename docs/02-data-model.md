@@ -25,6 +25,11 @@ erDiagram
     Task ||--o{ Submission : "решения"
     Submission ||--o{ SubmissionFile : "файлы"
     Submission ||--o{ SubmissionStatusChange : "история"
+    User ||--o{ Practice : "ведёт (преподаватель)"
+    Practice ||--o{ PracticeStudent : "студенты"
+    User ||--o{ PracticeStudent : ""
+    Practice ||--o{ PracticeTask : "задания"
+    Task ||--o{ PracticeTask : ""
     User ||--o{ Notification : ""
     User ||--o{ Session : ""
     User ||--o{ Account : ""
@@ -115,6 +120,24 @@ erDiagram
         SubmissionStatus toStatus
         string changedById FK
     }
+    Practice {
+        int id PK
+        string title
+        string teacherId FK
+        date startsAt
+        date endsAt
+    }
+    PracticeStudent {
+        int practiceId PK
+        string studentId PK
+        PracticeGrade grade
+        string gradeComment
+        datetime gradedAt
+    }
+    PracticeTask {
+        int practiceId PK
+        int taskId PK
+    }
     Notification {
         int id PK
         string userId FK
@@ -169,6 +192,8 @@ stateDiagram-v2
 | Индекс `(status, published_at DESC)`                   | основной запрос ленты: опубликованные, новые сверху (N-1)                  |
 | Строковые id пользователей                             | формат Better Auth; остальные сущности — числовые автоинкрементные id      |
 | snake_case в БД, camelCase в коде (`@map`)             | принятый стиль PostgreSQL, при этом TypeScript-код выглядит привычно       |
+| Даты практики — тип `DATE`                             | это календарные дни, без времени и часового пояса                          |
+| Результат студента в практике не хранится отдельно     | статус и оценка по заданию берутся из `submissions` — нет рассинхронизации |
 
 ## 2.6 Слой доступа к данным
 

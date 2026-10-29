@@ -21,7 +21,8 @@
 		"db:seed": "prisma db seed",
 		"db:reset": "prisma migrate reset",
 		"db:studio": "prisma studio",
-		"postinstall": "prisma generate"
+		"postinstall": "prisma generate",
+		"reports:weekly": "node scripts/send-weekly-reports.mjs"
 	},
 	"dependencies": {
 		"@hookform/resolvers": "^5.2.2",

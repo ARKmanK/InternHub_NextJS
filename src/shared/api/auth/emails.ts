@@ -15,9 +15,10 @@ type LinkEmail = { to: string; name: string; url: string; locale: Locale }
 const linkEmail = (
 	{ to, name, url, locale }: LinkEmail,
 	keys: {
-		subject: 'verifySubject' | 'resetSubject'
-		text: 'verifyText' | 'resetText'
-		button: 'verifyButton' | 'resetButton'
+		subject: 'verifySubject' | 'resetSubject' | 'inviteSubject'
+		text: 'verifyText' | 'resetText' | 'inviteText'
+		button: 'verifyButton' | 'resetButton' | 'inviteButton'
+		ignore?: 'inviteIgnore'
 	},
 ): Mail => {
 	const t = getEmailTranslator(locale)
@@ -25,8 +26,8 @@ const linkEmail = (
 	return {
 		to,
 		subject: t(keys.subject),
-		text: `${greeting}\n\n${t(keys.text)}\n${url}\n\n${t('linkExpires')} ${t('ignore')}`,
-		html: `<p>${escapeHtml(greeting)}</p><p>${t(keys.text)}</p><p><a href="${url}">${t(keys.button)}</a></p><p>${t('linkExpires')} ${t('ignore')}</p>`,
+		text: `${greeting}\n\n${t(keys.text)}\n${url}\n\n${t('linkExpires')} ${t(keys.ignore ?? 'ignore')}`,
+		html: `<p>${escapeHtml(greeting)}</p><p>${t(keys.text)}</p><p><a href="${url}">${t(keys.button)}</a></p><p>${t('linkExpires')} ${t(keys.ignore ?? 'ignore')}</p>`,
 	}
 }
 
@@ -35,6 +36,15 @@ export const verificationEmail = (data: LinkEmail) =>
 
 export const resetPasswordEmail = (data: LinkEmail) =>
 	linkEmail(data, { subject: 'resetSubject', text: 'resetText', button: 'resetButton' })
+
+/** Приглашение преподавателю: ссылка та же, что при сбросе пароля, но пароль задаётся впервые. */
+export const inviteEmail = (data: LinkEmail) =>
+	linkEmail(data, {
+		subject: 'inviteSubject',
+		text: 'inviteText',
+		button: 'inviteButton',
+		ignore: 'inviteIgnore',
+	})
 
 export const existingAccountEmail = ({ to, name, url, locale }: LinkEmail): Mail => {
 	const t = getEmailTranslator(locale)

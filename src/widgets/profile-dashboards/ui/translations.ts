@@ -19,6 +19,14 @@ const en = {
 	orgRejectedDescription:
 		'You cannot publish tasks. Contact the platform administrator to find out why.',
 	empty: 'The list is empty',
+	teachers: 'Teachers',
+	teacherActive: 'Active',
+	teacherInvited: 'Invited',
+	teacherTitle: 'My practices',
+	createPractice: 'Create practice',
+	noPractices: 'No practices yet',
+	myPractices: 'My practices',
+	notStarted: 'Not started',
 }
 
 const ru = {
@@ -40,6 +48,14 @@ const ru = {
 	orgRejectedDescription:
 		'Публиковать задания нельзя. Свяжитесь с администратором платформы, чтобы узнать причину.',
 	empty: 'Список пуст',
+	teachers: 'Преподаватели',
+	teacherActive: 'Активен',
+	teacherInvited: 'Приглашён',
+	teacherTitle: 'Мои практики',
+	createPractice: 'Создать практику',
+	noPractices: 'Практик пока нет',
+	myPractices: 'Мои практики',
+	notStarted: 'Не начато',
 }
 
 export default defineTranslations({ en, ru })

@@ -1,6 +1,6 @@
 import { db } from '@/shared/api'
 
-type Viewer = { id: string; role: 'student' | 'employer' | 'admin' } | null
+type Viewer = { id: string; role: 'student' | 'employer' | 'teacher' | 'admin' } | null
 
 /**
  * Файл решения для скачивания. Доступ: сам студент, автор задания и администратор.

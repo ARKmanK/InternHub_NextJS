@@ -15,7 +15,11 @@ import { getCurrentUser, getStudentProfile } from '@/entities/user/index.server'
 export async function StudentPortfolioPage({ studentId }: { studentId: string }) {
 	const viewer = await getCurrentUser()
 	const canView =
-		viewer && (viewer.id === studentId || viewer.role === 'employer' || viewer.role === 'admin')
+		viewer &&
+		(viewer.id === studentId ||
+			viewer.role === 'employer' ||
+			viewer.role === 'teacher' ||
+			viewer.role === 'admin')
 	if (!canView) notFound()
 
 	const student = await getStudentProfile(studentId)

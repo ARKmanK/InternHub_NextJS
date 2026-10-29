@@ -1,6 +1,11 @@
 import { getCurrentUser } from '@/entities/user/index.server'
 import { AuthPanel } from '@/widgets/auth-panel'
-import { AdminDashboard, EmployerDashboard, StudentDashboard } from '@/widgets/profile-dashboards'
+import {
+	AdminDashboard,
+	EmployerDashboard,
+	StudentDashboard,
+	TeacherDashboard,
+} from '@/widgets/profile-dashboards'
 
 /** Роль берётся из сессии на сервере, а не из куки или localStorage, которые может подменить пользователь. */
 export async function ProfilePage() {
@@ -19,6 +24,8 @@ export async function ProfilePage() {
 			return <AdminDashboard />
 		case 'employer':
 			return <EmployerDashboard user={user} />
+		case 'teacher':
+			return <TeacherDashboard user={user} />
 		case 'student':
 			return <StudentDashboard user={user} />
 	}

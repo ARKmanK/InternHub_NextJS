@@ -12,6 +12,11 @@ const en = {
 	resetSubject: 'InternHub: password recovery',
 	resetText: 'To set a new password, follow the link:',
 	resetButton: 'Set a new password',
+	inviteSubject: 'InternHub: you are invited as a teacher',
+	inviteText:
+		'The administrator created a teacher account for you on InternHub. To start, set a password:',
+	inviteButton: 'Set a password',
+	inviteIgnore: 'If the link has expired, ask the administrator to send the invitation again.',
 	existingSubject: 'InternHub: repeated sign-up attempt',
 	existingText:
 		'Someone tried to sign up on InternHub with your email. If it was you, just log in, and if you forgot the password, recover it:',
@@ -32,6 +37,11 @@ const ru = {
 	resetSubject: 'InternHub: восстановление пароля',
 	resetText: 'Чтобы задать новый пароль, перейдите по ссылке:',
 	resetButton: 'Задать новый пароль',
+	inviteSubject: 'InternHub: приглашение для преподавателя',
+	inviteText:
+		'Администратор создал для вас учётную запись преподавателя на InternHub. Чтобы начать, задайте пароль:',
+	inviteButton: 'Задать пароль',
+	inviteIgnore: 'Если ссылка устарела, попросите администратора отправить приглашение ещё раз.',
 	existingSubject: 'InternHub: попытка повторной регистрации',
 	existingText:
 		'Кто-то пытался зарегистрироваться на InternHub с вашей почтой. Если это были вы — просто войдите, а если забыли пароль, восстановите его:',

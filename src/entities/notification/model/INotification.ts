@@ -14,6 +14,8 @@ export const NOTIFICATION_TYPES = [
 	'SOLUTION_REJECTED',
 	'ORGANIZATION_VERIFIED',
 	'ORGANIZATION_REJECTED',
+	'PRACTICE_ADDED',
+	'PRACTICE_GRADED',
 ] as const
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number]
@@ -22,6 +24,7 @@ export type NotificationType = (typeof NOTIFICATION_TYPES)[number]
 export type NotificationParams = {
 	taskTitle?: string
 	studentName?: string
+	practiceTitle?: string
 	comment?: string
 }
 

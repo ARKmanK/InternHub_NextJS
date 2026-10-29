@@ -27,6 +27,7 @@ const pickParams = (value: unknown): NotificationParams => {
 	return {
 		taskTitle: text('taskTitle'),
 		studentName: text('studentName'),
+		practiceTitle: text('practiceTitle'),
 		comment: text('comment'),
 	}
 }

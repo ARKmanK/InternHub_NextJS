@@ -4,6 +4,7 @@ import { Award } from 'lucide-react'
 import { routes } from '@/shared/config'
 import { Button } from '@/shared/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
+import { getStudentPractices } from '@/entities/practice/index.server'
 import { TaskCard } from '@/entities/task'
 import {
 	getFavoriteTasks,
@@ -13,13 +14,15 @@ import {
 import type { IUser } from '@/entities/user'
 import { FavoriteButton } from '@/features/task/toggle-favorite'
 import { EmptyList } from './EmptyList'
+import { StudentPractices } from './StudentPractices'
 
 export async function StudentDashboard({ user }: { user: IUser }) {
 	const t = await getTranslations('ProfileDashboards')
-	const [favorite, started, approved] = await Promise.all([
+	const [favorite, started, approved, practices] = await Promise.all([
 		getFavoriteTasks(user.id),
 		getStudentTasksInProgress(user.id),
 		getStudentAcceptedTasks(user.id),
+		getStudentPractices(user.id),
 	])
 
 	const tabs = [
@@ -62,6 +65,7 @@ export async function StudentDashboard({ user }: { user: IUser }) {
 					</TabsContent>
 				))}
 			</Tabs>
+			{practices.length > 0 && <StudentPractices practices={practices} />}
 		</section>
 	)
 }

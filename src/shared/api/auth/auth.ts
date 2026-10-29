@@ -5,7 +5,7 @@ import { nextCookies } from 'better-auth/next-js'
 import { defaultLocale, isLocale, type Locale } from '@/shared/i18n'
 import { db } from '../db'
 import { sendMail } from '../mail'
-import { existingAccountEmail, resetPasswordEmail, verificationEmail } from './emails'
+import { existingAccountEmail, inviteEmail, resetPasswordEmail, verificationEmail } from './emails'
 
 /** Язык, на котором писать пользователю: из его профиля. */
 const getUserLocale = async (userId: string): Promise<Locale> => {
@@ -44,7 +44,13 @@ export const auth = betterAuth({
 		revokeSessionsOnPasswordReset: true,
 		sendResetPassword: async ({ user, url }) => {
 			const locale = await getUserLocale(user.id)
-			await sendMail(resetPasswordEmail({ to: user.email, name: user.name, url, locale }))
+			// Пароля ещё нет — значит, это приглашение (преподавателя создаёт администратор), а не восстановление
+			const hasPassword = await db.account.findFirst({
+				where: { userId: user.id, providerId: 'credential' },
+				select: { id: true },
+			})
+			const email = hasPassword ? resetPasswordEmail : inviteEmail
+			await sendMail(email({ to: user.email, name: user.name, url, locale }))
 		},
 		// Регистрация на уже занятую почту не возвращает ошибку (чтобы нельзя было перебором узнать,
 		// кто зарегистрирован) — вместо этого предупреждаем владельца почты

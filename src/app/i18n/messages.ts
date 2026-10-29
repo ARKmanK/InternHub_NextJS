@@ -2,11 +2,13 @@ import { commonTranslations, validationTranslations, type Locale } from '@/share
 import { translations as applicationStatus } from '@/entities/application'
 import { translations as notificationText } from '@/entities/notification'
 import { translations as organizationCard } from '@/entities/organization'
+import { translations as practice } from '@/entities/practice'
 import {
 	portfolioTranslations as portfolio,
 	translations as submissionStatus,
 } from '@/entities/submission'
 import { translations as taskCard } from '@/entities/task'
+import { translations as inviteTeacher } from '@/features/admin/invite-teacher'
 import { translations as applyToTask } from '@/features/application/apply-to-task'
 import { translations as reviewApplication } from '@/features/application/review-application'
 import { translations as loginForm } from '@/features/auth/login'
@@ -16,6 +18,11 @@ import { translations as registerStudentForm } from '@/features/auth/register-st
 import { translations as resetPassword } from '@/features/auth/reset-password'
 import { translations as langSwitch } from '@/features/lang-switch'
 import { translations as notifications } from '@/features/notifications'
+import { translations as gradeStudent } from '@/features/practice/grade-student'
+import { translations as manageStudents } from '@/features/practice/manage-students'
+import { translations as manageTasks } from '@/features/practice/manage-tasks'
+import { translations as practiceForm } from '@/features/practice/practice-form'
+import { translations as practiceReport } from '@/features/practice/practice-report'
 import { translations as verifyOrganization } from '@/features/organization/verify-organization'
 import { translations as reviewSubmission } from '@/features/submission/review-submission'
 import { translations as submitSolution } from '@/features/submission/submit-solution'
@@ -28,11 +35,13 @@ import { translations as favoriteButton } from '@/features/task/toggle-favorite'
 import { translations as themeToggle } from '@/features/theme-toggle'
 import { translations as homePage } from '@/pages/home'
 import { translations as notFoundPage } from '@/pages/not-found'
+import { translations as practicePage } from '@/pages/practice'
 import { translations as studentPortfolioPage } from '@/pages/student-portfolio'
 import { translations as taskPage } from '@/pages/task'
 import { translations as authPanel } from '@/widgets/auth-panel'
 import { translations as footer } from '@/widgets/footer'
 import { translations as header } from '@/widgets/header'
+import { translations as practiceProgress } from '@/widgets/practice-progress'
 import { translations as profileDashboards } from '@/widgets/profile-dashboards'
 import { translations as taskActivity } from '@/widgets/task-activity'
 import { translations as taskApplications } from '@/widgets/task-applications'
@@ -54,6 +63,7 @@ const registry = {
 	ApplicationStatus: applicationStatus,
 	NotificationText: notificationText,
 	OrganizationCard: organizationCard,
+	Practice: practice,
 	SubmissionStatus: submissionStatus,
 	Portfolio: portfolio,
 	TaskCard: taskCard,
@@ -77,6 +87,12 @@ const registry = {
 	TaskFilters: taskFilters,
 	TaskModeration: taskModeration,
 	FavoriteButton: favoriteButton,
+	InviteTeacher: inviteTeacher,
+	PracticeForm: practiceForm,
+	ManageStudents: manageStudents,
+	ManageTasks: manageTasks,
+	GradeStudent: gradeStudent,
+	PracticeReport: practiceReport,
 	// widgets
 	Header: header,
 	Footer: footer,
@@ -86,9 +102,11 @@ const registry = {
 	TaskApplications: taskApplications,
 	TaskParticipation: taskParticipation,
 	ProfileDashboards: profileDashboards,
+	PracticeProgress: practiceProgress,
 	// pages
 	HomePage: homePage,
 	NotFoundPage: notFoundPage,
+	PracticePage: practicePage,
 	StudentPortfolioPage: studentPortfolioPage,
 	TaskPage: taskPage,
 } as const

@@ -1,17 +1,22 @@
 import { getTranslations } from 'next-intl/server'
+import { Badge } from '@/shared/ui/badge'
+import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from '@/shared/ui/item'
 import { OrganizationCard } from '@/entities/organization'
 import { getOrganizationsForReview } from '@/entities/organization/index.server'
 import { TaskCard } from '@/entities/task'
 import { getTasksOnModeration } from '@/entities/task/index.server'
+import { getTeachers } from '@/entities/user/index.server'
+import { InviteTeacherForm } from '@/features/admin/invite-teacher'
 import { VerifyOrganizationActions } from '@/features/organization/verify-organization'
 import { ModerationActions } from '@/features/task/task-moderation'
 import { EmptyList } from './EmptyList'
 
 export async function AdminDashboard() {
 	const t = await getTranslations('ProfileDashboards')
-	const [organizations, tasks] = await Promise.all([
+	const [organizations, tasks, teachers] = await Promise.all([
 		getOrganizationsForReview(),
 		getTasksOnModeration(),
+		getTeachers(),
 	])
 
 	return (
@@ -46,6 +51,26 @@ export async function AdminDashboard() {
 						<TaskCard key={task.id} task={task} actions={<ModerationActions taskId={task.id} />} />
 					))
 				)}
+			</section>
+
+			<section className='flex flex-col gap-4'>
+				<h2 className='text-lg font-medium'>
+					{t('teachers')} ({teachers.length})
+				</h2>
+				<InviteTeacherForm />
+				{teachers.map(teacher => (
+					<Item key={teacher.id} variant='outline'>
+						<ItemContent>
+							<ItemTitle>{teacher.name}</ItemTitle>
+							<ItemDescription>{teacher.email}</ItemDescription>
+						</ItemContent>
+						<ItemActions>
+							<Badge variant={teacher.isActive ? 'secondary' : 'outline'}>
+								{teacher.isActive ? t('teacherActive') : t('teacherInvited')}
+							</Badge>
+						</ItemActions>
+					</Item>
+				))}
 			</section>
 		</section>
 	)

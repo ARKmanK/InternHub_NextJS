@@ -6,6 +6,7 @@ import type { IUser } from '../model/IUser'
 const roleToDto = {
 	[UserRole.STUDENT]: 'student',
 	[UserRole.EMPLOYER]: 'employer',
+	[UserRole.TEACHER]: 'teacher',
 	[UserRole.ADMIN]: 'admin',
 } as const satisfies Record<UserRole, IUser['role']>
 
@@ -34,6 +35,7 @@ export const getCurrentUser = cache(async (): Promise<IUser | null> => {
 			email: true,
 			name: true,
 			role: true,
+			locale: true,
 			employerProfile: {
 				select: { organization: { select: { id: true, name: true, status: true } } },
 			},
@@ -48,6 +50,7 @@ export const getCurrentUser = cache(async (): Promise<IUser | null> => {
 		email: user.email,
 		name: user.name,
 		role: roleToDto[user.role],
+		locale: user.locale,
 		organization: organization && {
 			id: organization.id,
 			name: organization.name,

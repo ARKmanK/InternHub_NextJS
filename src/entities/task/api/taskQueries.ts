@@ -15,7 +15,7 @@ export type TaskFilterOptions = {
 }
 
 /** Кто смотрит: от этого зависит, какие задания видны и отмечено ли избранное. */
-export type TaskViewer = { id: string; role: 'student' | 'employer' | 'admin' } | null
+export type TaskViewer = { id: string; role: 'student' | 'employer' | 'teacher' | 'admin' } | null
 
 // Студентам видны только опубликованные и закрытые задания
 const PUBLIC_STATUSES = [TaskStatus.PUBLISHED, TaskStatus.CLOSED]

@@ -3,7 +3,7 @@
  * Все организации и люди выдуманные. Скрипт идемпотентный: сначала очищает таблицы, потом заполняет заново.
  *
  * Войти можно под любым пользователем — пароль из SEED_PASSWORD (.env.local):
- *   admin@internhub.local, student1..4@internhub.local, employer1..4@internhub.local
+ *   admin@internhub.local, teacher@internhub.local, student1..4@internhub.local, employer1..4@internhub.local
  *   (employer4 — организация «на проверке», её можно подтвердить из кабинета админа).
  */
 import { randomUUID } from 'node:crypto'
@@ -62,6 +62,9 @@ const TAGS = [
 
 async function clear() {
 	// Порядок важен: сначала зависимые таблицы
+	await db.practiceTask.deleteMany()
+	await db.practiceStudent.deleteMany()
+	await db.practice.deleteMany()
 	await db.submissionStatusChange.deleteMany()
 	await db.submissionFile.deleteMany()
 	await db.submission.deleteMany()
@@ -92,6 +95,15 @@ async function main() {
 			email: 'admin@internhub.local',
 			emailVerified: true,
 			role: UserRole.ADMIN,
+		},
+	})
+
+	const teacher = await db.user.create({
+		data: {
+			name: 'Елена Преподавателева',
+			email: 'teacher@internhub.local',
+			emailVerified: true,
+			role: UserRole.TEACHER,
 		},
 	})
 
@@ -161,7 +173,7 @@ async function main() {
 	// Пароль для входа: запись в accounts с хэшем, как её создаёт Better Auth при регистрации по email
 	const passwordHash = await hashPassword(SEED_PASSWORD)
 	await db.account.createMany({
-		data: [admin, ...students, ...employers].map(user => ({
+		data: [admin, teacher, ...students, ...employers].map(user => ({
 			id: randomUUID(),
 			accountId: user.id,
 			providerId: 'credential',
@@ -544,6 +556,19 @@ async function main() {
 		})
 	}
 
+	// ─── Практика: группа ПМИ-22 (student1, student2) и два опубликованных задания ───
+	const practice = await db.practice.create({
+		data: {
+			title: 'Учебная практика ПМИ-22',
+			description: 'Выполнить два задания от партнёров платформы. Оценка — по принятым решениям.',
+			teacherId: teacher.id,
+			startsAt: daysAgo(14),
+			endsAt: daysFromNow(30),
+			students: { create: [{ studentId: students[0].id }, { studentId: students[1].id }] },
+			tasks: { create: [{ taskId: landing.id }, { taskId: restApi.id }] },
+		},
+	})
+
 	// ─── Уведомления ──────────────────────────────────────────────────────────
 	const [, , , , migration] = tasks
 	await db.notification.createMany({
@@ -569,6 +594,12 @@ async function main() {
 				params: { taskTitle: restApi.title, studentName: students[0].name },
 				link: `/tasks/${restApi.id}`,
 			},
+			...students.slice(0, 2).map(student => ({
+				userId: student.id,
+				type: NotificationType.PRACTICE_ADDED,
+				params: { practiceTitle: practice.title },
+				link: '/profile',
+			})),
 			{
 				userId: admin.id,
 				type: NotificationType.TASK_ON_MODERATION,

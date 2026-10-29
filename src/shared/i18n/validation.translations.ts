@@ -32,6 +32,9 @@ const en = {
 	imagesLimit: 'No more than 5 images',
 	imageSize: 'Image is larger than 10 MB',
 	reviewComment: 'Explain what should be changed (from 5 characters)',
+	practiceTitle: 'From 3 to 100 characters',
+	date: 'Choose a date',
+	dateRange: 'The end date cannot be earlier than the start date',
 }
 
 const ru = {
@@ -61,6 +64,9 @@ const ru = {
 	imagesLimit: 'Не больше 5 изображений',
 	imageSize: 'Изображение больше 10 МБ',
 	reviewComment: 'Поясните, что нужно изменить (от 5 символов)',
+	practiceTitle: 'От 3 до 100 символов',
+	date: 'Выберите дату',
+	dateRange: 'Дата окончания не может быть раньше даты начала',
 }
 
 const validation = defineTranslations({ en, ru })

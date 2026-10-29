@@ -33,6 +33,10 @@ const en = {
 	ORGANIZATION_VERIFIED_body: 'You can now publish tasks.',
 	ORGANIZATION_REJECTED_title: 'Organization did not pass verification',
 	ORGANIZATION_REJECTED_body: 'Contact the platform administrator to find out why.',
+	PRACTICE_ADDED_title: 'You were added to a practice',
+	PRACTICE_ADDED_body: '“{practiceTitle}”: see the tasks and deadlines in your profile.',
+	PRACTICE_GRADED_title: 'Practice graded',
+	PRACTICE_GRADED_body: 'The teacher graded your work in “{practiceTitle}”.',
 }
 
 const ru = {
@@ -64,6 +68,10 @@ const ru = {
 	ORGANIZATION_VERIFIED_body: 'Теперь вы можете публиковать задания.',
 	ORGANIZATION_REJECTED_title: 'Организация не прошла проверку',
 	ORGANIZATION_REJECTED_body: 'Свяжитесь с администратором платформы, чтобы уточнить причину.',
+	PRACTICE_ADDED_title: 'Вас добавили в практику',
+	PRACTICE_ADDED_body: '«{practiceTitle}»: задания и сроки — в вашем профиле.',
+	PRACTICE_GRADED_title: 'Оценка за практику',
+	PRACTICE_GRADED_body: 'Преподаватель выставил оценку за «{practiceTitle}».',
 }
 
 export default defineTranslations({ en, ru })

@@ -8,6 +8,7 @@ export function useNotificationText({ type, params }: Pick<INotification, 'type'
 	const values = {
 		taskTitle: params.taskTitle ?? '',
 		studentName: params.studentName ?? '',
+		practiceTitle: params.practiceTitle ?? '',
 	}
 
 	return {

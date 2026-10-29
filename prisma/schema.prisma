@@ -22,6 +22,8 @@ datasource db {
 enum UserRole {
   STUDENT
   EMPLOYER
+  /// Преподаватель / куратор практики. Назначает администратор
+  TEACHER
   ADMIN
 
   @@map("user_role")
@@ -62,6 +64,8 @@ model User {
   taskStatusChanges TaskStatusChange[]
   submissionChanges SubmissionStatusChange[]
   verifiedOrgs      Organization[]           @relation("OrganizationVerifier")
+  practicesTaught   Practice[]               @relation("PracticeTeacher")
+  practices         PracticeStudent[]
 
   @@map("users")
 }
@@ -184,6 +188,7 @@ model Task {
   applications  Application[]
   submissions   Submission[]
   statusChanges TaskStatusChange[]
+  practices     PracticeTask[]
 
   // Лента: опубликованные задания, новые сверху
   @@index([status, publishedAt(sort: Desc)])
@@ -355,6 +360,8 @@ enum NotificationType {
   SOLUTION_REJECTED
   ORGANIZATION_VERIFIED
   ORGANIZATION_REJECTED
+  PRACTICE_ADDED
+  PRACTICE_GRADED
 
   @@map("notification_type")
 }
@@ -427,4 +434,65 @@ model Verification {
 
   @@index([identifier])
   @@map("verifications")
+}
+
+// ─── Практики (роль преподавателя) ─────────────────────────────────────────
+
+/// Учебная практика или дисциплина: преподаватель собирает группу студентов и набор заданий,
+/// следит за прогрессом и выставляет итоговую оценку.
+model Practice {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(100)
+  description String?  @db.VarChar(2000)
+  teacherId   String   @map("teacher_id")
+  startsAt    DateTime @map("starts_at") @db.Date
+  endsAt      DateTime @map("ends_at") @db.Date
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  teacher  User              @relation("PracticeTeacher", fields: [teacherId], references: [id], onDelete: Restrict)
+  students PracticeStudent[]
+  tasks    PracticeTask[]
+
+  @@index([teacherId])
+  @@map("practices")
+}
+
+/// Итоговая оценка по практике — пятибалльная шкала вуза.
+enum PracticeGrade {
+  EXCELLENT // отлично
+  GOOD // хорошо
+  SATISFACTORY // удовлетворительно
+  UNSATISFACTORY // неудовлетворительно
+
+  @@map("practice_grade")
+}
+
+model PracticeStudent {
+  practiceId   Int            @map("practice_id")
+  studentId    String         @map("student_id")
+  grade        PracticeGrade?
+  gradeComment String?        @map("grade_comment") @db.VarChar(2000)
+  gradedAt     DateTime?      @map("graded_at")
+  addedAt      DateTime       @default(now()) @map("added_at")
+
+  practice Practice @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  student  User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@id([practiceId, studentId])
+  @@index([studentId])
+  @@map("practice_students")
+}
+
+model PracticeTask {
+  practiceId Int      @map("practice_id")
+  taskId     Int      @map("task_id")
+  addedAt    DateTime @default(now()) @map("added_at")
+
+  practice Practice @relation(fields: [practiceId], references: [id], onDelete: Cascade)
+  task     Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@id([practiceId, taskId])
+  @@index([taskId])
+  @@map("practice_tasks")
 }

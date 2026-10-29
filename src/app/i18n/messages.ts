@@ -2,7 +2,10 @@ import { commonTranslations, validationTranslations, type Locale } from '@/share
 import { translations as applicationStatus } from '@/entities/application'
 import { translations as notificationText } from '@/entities/notification'
 import { translations as organizationCard } from '@/entities/organization'
-import { translations as submissionStatus } from '@/entities/submission'
+import {
+	portfolioTranslations as portfolio,
+	translations as submissionStatus,
+} from '@/entities/submission'
 import { translations as taskCard } from '@/entities/task'
 import { translations as applyToTask } from '@/features/application/apply-to-task'
 import { translations as reviewApplication } from '@/features/application/review-application'
@@ -25,6 +28,7 @@ import { translations as favoriteButton } from '@/features/task/toggle-favorite'
 import { translations as themeToggle } from '@/features/theme-toggle'
 import { translations as homePage } from '@/pages/home'
 import { translations as notFoundPage } from '@/pages/not-found'
+import { translations as studentPortfolioPage } from '@/pages/student-portfolio'
 import { translations as taskPage } from '@/pages/task'
 import { translations as authPanel } from '@/widgets/auth-panel'
 import { translations as footer } from '@/widgets/footer'
@@ -51,6 +55,7 @@ const registry = {
 	NotificationText: notificationText,
 	OrganizationCard: organizationCard,
 	SubmissionStatus: submissionStatus,
+	Portfolio: portfolio,
 	TaskCard: taskCard,
 	// features
 	ApplyToTask: applyToTask,
@@ -84,6 +89,7 @@ const registry = {
 	// pages
 	HomePage: homePage,
 	NotFoundPage: notFoundPage,
+	StudentPortfolioPage: studentPortfolioPage,
 	TaskPage: taskPage,
 } as const
 

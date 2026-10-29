@@ -2,6 +2,7 @@ import { defineTranslations } from '@/shared/i18n'
 
 const en = {
 	studentTitle: 'My tasks',
+	myPortfolio: 'My portfolio',
 	favorite: 'Favorites',
 	started: 'In progress',
 	approved: 'Accepted',
@@ -22,6 +23,7 @@ const en = {
 
 const ru = {
 	studentTitle: 'Мои задачи',
+	myPortfolio: 'Моё портфолио',
 	favorite: 'Избранное',
 	started: 'В работе',
 	approved: 'Принятые',

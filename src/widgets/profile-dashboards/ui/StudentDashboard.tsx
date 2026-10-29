@@ -1,4 +1,8 @@
+import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
+import { Award } from 'lucide-react'
+import { routes } from '@/shared/config'
+import { Button } from '@/shared/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs'
 import { TaskCard } from '@/entities/task'
 import {
@@ -26,7 +30,14 @@ export async function StudentDashboard({ user }: { user: IUser }) {
 
 	return (
 		<section className='flex flex-col gap-4'>
-			<h1 className='text-2xl font-semibold'>{t('studentTitle')}</h1>
+			<div className='flex flex-wrap items-center justify-between gap-4'>
+				<h1 className='text-2xl font-semibold'>{t('studentTitle')}</h1>
+				<Button asChild variant='outline'>
+					<Link href={routes.studentPortfolio(user.id)}>
+						<Award /> {t('myPortfolio')}
+					</Link>
+				</Button>
+			</div>
 			<Tabs defaultValue='favorite'>
 				<TabsList>
 					{tabs.map(tab => (

@@ -1,4 +1,6 @@
+import Link from 'next/link'
 import { getFormatter, getTranslations } from 'next-intl/server'
+import { routes } from '@/shared/config'
 import {
 	Item,
 	ItemActions,
@@ -41,7 +43,13 @@ export async function TaskApplications({ taskId, maxParticipants }: TaskApplicat
 						<Item key={application.id} variant='outline'>
 							<ItemContent>
 								<ItemTitle>
-									{application.studentName}
+									<Link
+										href={routes.studentPortfolio(application.studentId)}
+										className='underline-offset-4 hover:underline'
+										title={t('portfolio')}
+									>
+										{application.studentName}
+									</Link>
 									{application.studentGroup && (
 										<span className='font-normal text-muted-foreground'>
 											{' '}

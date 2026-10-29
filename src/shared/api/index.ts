@@ -1,5 +1,5 @@
 // Только для сервера: db, auth, mail и storage импортируют 'server-only'
 export * from './db'
 export { auth, getAuthErrorCode, signUpWithEmail, type SignUpResult } from './auth'
-export { sendMail, type Mail } from './mail'
+export { sendMail, getEmailTranslator, type Mail } from './mail'
 export { storage, saveUpload, fileResponse, type FileStorage } from './storage'

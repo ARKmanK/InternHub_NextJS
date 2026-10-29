@@ -1,5 +1,6 @@
 import { commonTranslations, validationTranslations, type Locale } from '@/shared/i18n'
 import { translations as applicationStatus } from '@/entities/application'
+import { translations as notificationText } from '@/entities/notification'
 import { translations as organizationCard } from '@/entities/organization'
 import { translations as submissionStatus } from '@/entities/submission'
 import { translations as taskCard } from '@/entities/task'
@@ -47,6 +48,7 @@ const registry = {
 	Validation: validationTranslations,
 	// entities
 	ApplicationStatus: applicationStatus,
+	NotificationText: notificationText,
 	OrganizationCard: organizationCard,
 	SubmissionStatus: submissionStatus,
 	TaskCard: taskCard,

@@ -53,17 +53,11 @@ export async function reviewApplicationAction(
 
 		await notifyUsers(
 			[application.studentId],
-			accept
-				? {
-						title: 'Заявка принята',
-						body: `Можно приступать к «${task.title}» и сдавать решение.`,
-						link: routes.task(task.id),
-					}
-				: {
-						title: 'Заявка отклонена',
-						body: `Работодатель отклонил заявку на «${task.title}».`,
-						link: routes.task(task.id),
-					},
+			{
+				type: accept ? 'APPLICATION_ACCEPTED' : 'APPLICATION_DECLINED',
+				params: { taskTitle: task.title },
+				link: routes.task(task.id),
+			},
 			tx,
 		)
 		return 'ok' as const

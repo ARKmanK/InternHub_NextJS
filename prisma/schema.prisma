@@ -27,6 +27,13 @@ enum UserRole {
   @@map("user_role")
 }
 
+enum Locale {
+  ru
+  en
+
+  @@map("locale")
+}
+
 /// Учётная запись. Поля name, email, emailVerified, image, createdAt, updatedAt нужны Better Auth (этап 2).
 /// Роль назначает сервер при регистрации; пользователь сам её поменять не может.
 model User {
@@ -36,6 +43,8 @@ model User {
   emailVerified Boolean  @default(false) @map("email_verified")
   image         String?
   role          UserRole @default(STUDENT)
+  /// Язык интерфейса: на нём приходят письма и показываются уведомления
+  locale        Locale   @default(ru)
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
@@ -102,9 +111,12 @@ model Organization {
 
 /// Представитель организации.
 model EmployerProfile {
-  userId         String  @id @map("user_id")
-  organizationId Int     @map("organization_id")
-  position       String?
+  userId           String    @id @map("user_id")
+  organizationId   Int       @map("organization_id")
+  position         String?
+  /// Когда отправлен последний еженедельный отчёт: следующий охватывает решения после этой даты,
+  /// а повторный запуск задачи по расписанию не пришлёт письмо дважды
+  lastReportSentAt DateTime? @map("last_report_sent_at")
 
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
@@ -326,14 +338,36 @@ model SubmissionStatusChange {
 
 // ─── Уведомления ────────────────────────────────────────────────────────────
 
+/// Вид события. Текст уведомления в базе не хранится: его собирают из типа и параметров
+/// при показе — на языке того, кто читает (entities/notification/ui/translations.ts).
+enum NotificationType {
+  TASK_ON_MODERATION
+  TASK_EDITED
+  TASK_PUBLISHED
+  TASK_RETURNED
+  APPLICATION_RECEIVED
+  APPLICATION_ACCEPTED
+  APPLICATION_DECLINED
+  SOLUTION_RECEIVED
+  SOLUTION_RESUBMITTED
+  SOLUTION_ACCEPTED
+  SOLUTION_CHANGES_REQUESTED
+  SOLUTION_REJECTED
+  ORGANIZATION_VERIFIED
+  ORGANIZATION_REJECTED
+
+  @@map("notification_type")
+}
+
 model Notification {
-  id        Int       @id @default(autoincrement())
-  userId    String    @map("user_id")
-  title     String    @db.VarChar(200)
-  body      String    @db.VarChar(1000)
+  id        Int              @id @default(autoincrement())
+  userId    String           @map("user_id")
+  type      NotificationType
+  /// Подстановки для текста: { taskTitle, studentName, comment }
+  params    Json             @default("{}")
   link      String?
-  readAt    DateTime? @map("read_at")
-  createdAt DateTime  @default(now()) @map("created_at")
+  readAt    DateTime?        @map("read_at")
+  createdAt DateTime         @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

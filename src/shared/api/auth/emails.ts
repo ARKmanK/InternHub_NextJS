@@ -1,27 +1,6 @@
+import type { Locale } from '@/shared/i18n'
+import { getEmailTranslator } from '../mail/emailTranslations'
 import type { Mail } from '../mail'
-
-// Тексты писем. Пока только на русском: язык пользователя в момент отправки неизвестен.
-// TODO(этап 4): хранить язык в профиле и отправлять письма на нём.
-
-export const verificationEmail = (to: string, name: string, url: string): Mail => ({
-	to,
-	subject: 'InternHub: подтвердите почту',
-	text: `Здравствуйте, ${name}!\n\nЧтобы завершить регистрацию на InternHub, перейдите по ссылке:\n${url}\n\nСсылка действует 1 час. Если вы не регистрировались, просто проигнорируйте это письмо.`,
-	html: `<p>Здравствуйте, ${escapeHtml(name)}!</p><p>Чтобы завершить регистрацию на InternHub, перейдите по ссылке:</p><p><a href="${url}">Подтвердить почту</a></p><p>Ссылка действует 1 час. Если вы не регистрировались, просто проигнорируйте это письмо.</p>`,
-})
-
-export const resetPasswordEmail = (to: string, name: string, url: string): Mail => ({
-	to,
-	subject: 'InternHub: восстановление пароля',
-	text: `Здравствуйте, ${name}!\n\nЧтобы задать новый пароль, перейдите по ссылке:\n${url}\n\nСсылка действует 1 час. Если вы не запрашивали сброс пароля, просто проигнорируйте это письмо.`,
-	html: `<p>Здравствуйте, ${escapeHtml(name)}!</p><p>Чтобы задать новый пароль, перейдите по ссылке:</p><p><a href="${url}">Задать новый пароль</a></p><p>Ссылка действует 1 час. Если вы не запрашивали сброс пароля, просто проигнорируйте это письмо.</p>`,
-})
-
-export const existingAccountEmail = (to: string, name: string, loginUrl: string): Mail => ({
-	to,
-	subject: 'InternHub: попытка повторной регистрации',
-	text: `Здравствуйте, ${name}!\n\nКто-то пытался зарегистрироваться на InternHub с вашей почтой. Если это были вы — просто войдите, а если забыли пароль, восстановите его:\n${loginUrl}\n\nЕсли это были не вы, ничего делать не нужно: ваш аккаунт в безопасности.`,
-})
 
 // Имя вводит пользователь — в HTML его нужно экранировать
 const escapeHtml = (value: string) =>
@@ -29,3 +8,39 @@ const escapeHtml = (value: string) =>
 		/[&<>"']/g,
 		char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]!,
 	)
+
+type LinkEmail = { to: string; name: string; url: string; locale: Locale }
+
+/** Письмо со ссылкой-кнопкой: подтверждение почты и сброс пароля устроены одинаково. */
+const linkEmail = (
+	{ to, name, url, locale }: LinkEmail,
+	keys: {
+		subject: 'verifySubject' | 'resetSubject'
+		text: 'verifyText' | 'resetText'
+		button: 'verifyButton' | 'resetButton'
+	},
+): Mail => {
+	const t = getEmailTranslator(locale)
+	const greeting = t('greeting', { name })
+	return {
+		to,
+		subject: t(keys.subject),
+		text: `${greeting}\n\n${t(keys.text)}\n${url}\n\n${t('linkExpires')} ${t('ignore')}`,
+		html: `<p>${escapeHtml(greeting)}</p><p>${t(keys.text)}</p><p><a href="${url}">${t(keys.button)}</a></p><p>${t('linkExpires')} ${t('ignore')}</p>`,
+	}
+}
+
+export const verificationEmail = (data: LinkEmail) =>
+	linkEmail(data, { subject: 'verifySubject', text: 'verifyText', button: 'verifyButton' })
+
+export const resetPasswordEmail = (data: LinkEmail) =>
+	linkEmail(data, { subject: 'resetSubject', text: 'resetText', button: 'resetButton' })
+
+export const existingAccountEmail = ({ to, name, url, locale }: LinkEmail): Mail => {
+	const t = getEmailTranslator(locale)
+	return {
+		to,
+		subject: t('existingSubject'),
+		text: `${t('greeting', { name })}\n\n${t('existingText')}\n${url}\n\n${t('existingSafe')}`,
+	}
+}

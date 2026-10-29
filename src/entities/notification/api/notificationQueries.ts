@@ -1,5 +1,5 @@
 import { db } from '@/shared/api'
-import type { INotification } from '../model/INotification'
+import type { INotification, NotificationParams } from '../model/INotification'
 
 /** Непрочитанные уведомления пользователя, новые сверху. Вызывается только на сервере. */
 export async function getUnreadNotifications(userId: string): Promise<INotification[]> {
@@ -11,10 +11,22 @@ export async function getUnreadNotifications(userId: string): Promise<INotificat
 
 	return rows.map(row => ({
 		id: row.id,
-		title: row.title,
-		description: row.body,
+		type: row.type,
+		// Json из базы: берём только известные строковые поля
+		params: pickParams(row.params),
 		link: row.link,
 		isRead: row.readAt !== null,
 		createdAt: row.createdAt.toISOString(),
 	}))
+}
+
+const pickParams = (value: unknown): NotificationParams => {
+	if (!value || typeof value !== 'object') return {}
+	const source = value as Record<string, unknown>
+	const text = (key: string) => (typeof source[key] === 'string' ? source[key] : undefined)
+	return {
+		taskTitle: text('taskTitle'),
+		studentName: text('studentName'),
+		comment: text('comment'),
+	}
 }

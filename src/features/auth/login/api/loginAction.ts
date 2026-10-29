@@ -1,12 +1,15 @@
 'use server'
 
-import { headers } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { auth, getAuthErrorCode } from '@/shared/api'
 import { routes } from '@/shared/config'
+import { LOCALE_COOKIE, isLocale } from '@/shared/i18n'
 import type { ActionResult } from '@/shared/lib/actionResult'
 import { checkRateLimit, getClientIp } from '@/shared/lib/rateLimit'
 import { loginSchema, type LoginFormValues } from '../model/loginSchema'
+
+const ONE_YEAR = 60 * 60 * 24 * 365
 
 /**
  * Вход один для всех ролей: роль сервер знает сам по учётной записи.
@@ -21,7 +24,12 @@ export async function loginAction(values: LoginFormValues): Promise<ActionResult
 	if (!parsed.success) return { ok: false, error: 'invalidData' }
 
 	try {
-		await auth.api.signInEmail({ body: parsed.data, headers: await headers() })
+		const { user } = await auth.api.signInEmail({ body: parsed.data, headers: await headers() })
+		// Язык из профиля: вошёл с другого устройства — интерфейс сразу на привычном языке
+		if (isLocale(user.locale)) {
+			const cookieStore = await cookies()
+			cookieStore.set(LOCALE_COOKIE, user.locale, { path: '/', maxAge: ONE_YEAR, sameSite: 'lax' })
+		}
 	} catch (error) {
 		const code = getAuthErrorCode(error)
 		// На неверный пароль и несуществующую почту — одна и та же ошибка: не подсказываем, какие почты зарегистрированы

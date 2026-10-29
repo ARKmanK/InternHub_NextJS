@@ -48,12 +48,11 @@ export async function moderateTaskAction(
 		if (ok) {
 			await notifyUsers(
 				[task.authorId],
-				approved
-					? { title: 'Задание опубликовано', body: `«${task.title}» прошло модерацию.` }
-					: {
-							title: 'Задание возвращено на доработку',
-							body: `«${task.title}»: ${reason}`,
-						},
+				{
+					type: approved ? 'TASK_PUBLISHED' : 'TASK_RETURNED',
+					params: { taskTitle: task.title, ...(reason && { comment: reason }) },
+					link: routes.task(taskId),
+				},
 				tx,
 			)
 		}

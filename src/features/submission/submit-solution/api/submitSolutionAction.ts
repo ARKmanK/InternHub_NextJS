@@ -136,8 +136,8 @@ export async function submitSolutionAction(
 			await notifyUsers(
 				[task.authorId],
 				{
-					title: isResubmission ? 'Решение доработано' : 'Новое решение',
-					body: `${user.name} отправил решение по «${task.title}».`,
+					type: isResubmission ? 'SOLUTION_RESUBMITTED' : 'SOLUTION_RECEIVED',
+					params: { taskTitle: task.title, studentName: user.name },
 					link: routes.task(taskId),
 				},
 				tx,

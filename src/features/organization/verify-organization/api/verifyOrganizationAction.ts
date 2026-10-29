@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { db, OrganizationStatus } from '@/shared/api'
 import { routes } from '@/shared/config'
 import type { ActionResult } from '@/shared/lib/actionResult'
+import { notifyUsers } from '@/entities/notification/index.server'
 import { getCurrentUser } from '@/entities/user/index.server'
 
 export type VerificationDecision = 'approve' | 'reject'
@@ -37,17 +38,13 @@ export async function verifyOrganizationAction(
 		where: { organizationId },
 		select: { userId: true },
 	})
-	await db.notification.createMany({
-		data: employers.map(({ userId }) => ({
-			userId,
-			// TODO(этап 4): тексты уведомлений — на языке получателя
-			title: approved ? 'Организация подтверждена' : 'Организация не прошла проверку',
-			body: approved
-				? 'Теперь вы можете публиковать задания.'
-				: 'Свяжитесь с администратором платформы, чтобы уточнить причину.',
+	await notifyUsers(
+		employers.map(employer => employer.userId),
+		{
+			type: approved ? 'ORGANIZATION_VERIFIED' : 'ORGANIZATION_REJECTED',
 			link: routes.profile(),
-		})),
-	})
+		},
+	)
 
 	revalidatePath(routes.profile())
 	return { ok: true, data: undefined }

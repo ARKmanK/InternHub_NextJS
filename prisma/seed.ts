@@ -13,6 +13,7 @@ import { hashPassword } from 'better-auth/crypto'
 import {
 	ApplicationStatus,
 	IpTerms,
+	NotificationType,
 	OrganizationStatus,
 	PrismaClient,
 	SubmissionFileKind,
@@ -544,31 +545,35 @@ async function main() {
 	}
 
 	// ─── Уведомления ──────────────────────────────────────────────────────────
+	const [, , , , migration] = tasks
 	await db.notification.createMany({
 		data: [
 			{
 				userId: students[0].id,
-				title: 'Решение принято',
-				body: `«${landing.title}»: работодатель принял ваше решение.`,
+				type: NotificationType.SOLUTION_ACCEPTED,
+				params: { taskTitle: landing.title },
 				link: `/tasks/${landing.id}`,
 			},
 			{
 				userId: students[1].id,
-				title: 'Решение возвращено на доработку',
-				body: `«${restApi.title}»: посмотрите комментарий работодателя.`,
+				type: NotificationType.SOLUTION_CHANGES_REQUESTED,
+				params: {
+					taskTitle: restApi.title,
+					comment: 'Не хватает тестов и пагинации в списке заявок.',
+				},
 				link: `/tasks/${restApi.id}`,
 			},
 			{
 				userId: employers[0].id,
-				title: 'Новое решение',
-				body: `«${restApi.title}»: студент отправил решение.`,
+				type: NotificationType.SOLUTION_RECEIVED,
+				params: { taskTitle: restApi.title, studentName: students[0].name },
 				link: `/tasks/${restApi.id}`,
 			},
 			{
 				userId: admin.id,
-				title: 'Задание ждёт модерации',
-				body: 'Новое задание отправлено на проверку.',
-				link: '/profile',
+				type: NotificationType.TASK_ON_MODERATION,
+				params: { taskTitle: migration.title },
+				link: `/tasks/${migration.id}`,
 			},
 		],
 	})

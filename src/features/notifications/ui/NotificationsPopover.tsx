@@ -1,8 +1,8 @@
 'use client'
 
-import { useOptimistic, useTransition } from 'react'
+import { useTransition } from 'react'
 import Link from 'next/link'
-import { useFormatter, useTranslations } from 'next-intl'
+import { useFormatter, useNow, useTranslations } from 'next-intl'
 import { BellIcon, Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/shared/ui/button'
@@ -16,22 +16,19 @@ import {
 } from '@/shared/ui/item'
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
 import { ScrollArea } from '@/shared/ui/scroll-area'
-import type { INotification } from '@/entities/notification'
+import { useNotificationText, type INotification } from '@/entities/notification'
 import { markNotificationReadAction } from '../api/markNotificationReadAction'
+import { useNotificationsPolling } from '../model/useNotificationsPolling'
 
-/** Данные приходят с сервера пропсом — без фейковой загрузки при открытии. */
 export function NotificationsPopover({ notifications }: { notifications: INotification[] }) {
 	const t = useTranslations('Notifications')
 	const tCommon = useTranslations('Common')
-	const format = useFormatter()
 	const [isPending, startTransition] = useTransition()
-	const [visible, removeOptimistic] = useOptimistic(notifications, (list, id: number) =>
-		list.filter(item => item.id !== id),
-	)
+	const { notifications: visible, remove } = useNotificationsPolling(notifications)
 
 	const markRead = (id: number) =>
 		startTransition(async () => {
-			removeOptimistic(id)
+			remove(id)
 			const result = await markNotificationReadAction(id)
 			if (!result.ok) toast.error(tCommon(result.error))
 		})
@@ -55,37 +52,65 @@ export function NotificationsPopover({ notifications }: { notifications: INotifi
 					<ScrollArea className='max-h-80'>
 						<ItemGroup className='p-2'>
 							{visible.map(notification => (
-								<Item key={notification.id} variant='outline' size='sm'>
-									<ItemContent>
-										<ItemTitle>
-											{notification.link ? (
-												<Link href={notification.link}>{notification.title}</Link>
-											) : (
-												notification.title
-											)}
-										</ItemTitle>
-										<ItemDescription>{notification.description}</ItemDescription>
-										<span className='text-xs text-muted-foreground'>
-											{format.relativeTime(new Date(notification.createdAt))}
-										</span>
-									</ItemContent>
-									<ItemActions>
-										<Button
-											variant='ghost'
-											size='icon-sm'
-											disabled={isPending}
-											aria-label={t('markRead')}
-											onClick={() => markRead(notification.id)}
-										>
-											<Check />
-										</Button>
-									</ItemActions>
-								</Item>
+								<NotificationItem
+									key={notification.id}
+									notification={notification}
+									disabled={isPending}
+									markReadLabel={t('markRead')}
+									onMarkRead={() => markRead(notification.id)}
+								/>
 							))}
 						</ItemGroup>
 					</ScrollArea>
 				)}
 			</PopoverContent>
 		</Popover>
+	)
+}
+
+type NotificationItemProps = {
+	notification: INotification
+	disabled: boolean
+	markReadLabel: string
+	onMarkRead: () => void
+}
+
+function NotificationItem({
+	notification,
+	disabled,
+	markReadLabel,
+	onMarkRead,
+}: NotificationItemProps) {
+	const format = useFormatter()
+	// Начинает с серверного «сейчас» (совпадает при гидратации) и обновляется раз в минуту
+	const now = useNow({ updateInterval: 60_000 })
+	const { title, body, comment } = useNotificationText(notification)
+
+	return (
+		<Item variant='outline' size='sm'>
+			<ItemContent>
+				<ItemTitle>
+					{notification.link ? <Link href={notification.link}>{title}</Link> : title}
+				</ItemTitle>
+				<ItemDescription>{body}</ItemDescription>
+				{comment && (
+					<p className='line-clamp-3 border-l-2 pl-2 text-sm whitespace-pre-line'>{comment}</p>
+				)}
+				<span className='text-xs text-muted-foreground'>
+					{format.relativeTime(new Date(notification.createdAt), now)}
+				</span>
+			</ItemContent>
+			<ItemActions>
+				<Button
+					variant='ghost'
+					size='icon-sm'
+					disabled={disabled}
+					aria-label={markReadLabel}
+					onClick={onMarkRead}
+				>
+					<Check />
+				</Button>
+			</ItemActions>
+		</Item>
 	)
 }

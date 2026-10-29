@@ -39,8 +39,8 @@ export async function applyToTaskAction(taskId: number, message: string): Promis
 		await notifyUsers(
 			[task.authorId],
 			{
-				title: 'Новая заявка',
-				body: `${user.name} хочет выполнить «${task.title}».`,
+				type: 'APPLICATION_RECEIVED',
+				params: { taskTitle: task.title, studentName: user.name },
 				link: routes.task(taskId),
 			},
 			tx,

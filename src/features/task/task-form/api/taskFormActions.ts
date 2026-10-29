@@ -78,8 +78,8 @@ export async function createTaskAction(formData: FormData): Promise<ActionResult
 			})
 			await notifyAdmins(
 				{
-					title: 'Новое задание на модерации',
-					body: `«${created.title}» ждёт проверки.`,
+					type: 'TASK_ON_MODERATION',
+					params: { taskTitle: created.title },
 					link: routes.task(created.id),
 				},
 				tx,
@@ -148,8 +148,8 @@ export async function updateTaskAction(
 				if (!changed) throw new Error('Статус задания изменился во время редактирования')
 				await notifyAdmins(
 					{
-						title: 'Задание изменено и ждёт модерации',
-						body: `«${values.title}» отредактировано автором.`,
+						type: 'TASK_EDITED',
+						params: { taskTitle: values.title },
 						link: routes.task(taskId),
 					},
 					tx,

@@ -2,9 +2,16 @@ import 'server-only'
 import { betterAuth } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
 import { nextCookies } from 'better-auth/next-js'
+import { defaultLocale, isLocale, type Locale } from '@/shared/i18n'
 import { db } from '../db'
 import { sendMail } from '../mail'
 import { existingAccountEmail, resetPasswordEmail, verificationEmail } from './emails'
+
+/** Язык, на котором писать пользователю: из его профиля. */
+const getUserLocale = async (userId: string): Promise<Locale> => {
+	const user = await db.user.findUnique({ where: { id: userId }, select: { locale: true } })
+	return isLocale(user?.locale) ? user.locale : defaultLocale
+}
 
 /**
  * Better Auth: учётные записи, пароли (хэш scrypt), сессии в httpOnly-куке, подтверждение почты, сброс пароля.
@@ -22,20 +29,29 @@ export const auth = betterAuth({
 	baseURL: process.env.BETTER_AUTH_URL,
 	disabledPaths: ['/sign-up/email', '/sign-in/email'],
 
+	user: {
+		additionalFields: {
+			// Язык передаёт наш server action при регистрации (из куки), чтобы первое же письмо
+			// пришло на нужном языке. HTTP-регистрация закрыта, поэтому подставить сюда что-то чужое нельзя
+			locale: { type: 'string', input: true, required: false, defaultValue: defaultLocale },
+		},
+	},
+
 	emailAndPassword: {
 		enabled: true,
 		requireEmailVerification: true,
 		minPasswordLength: 8,
 		revokeSessionsOnPasswordReset: true,
 		sendResetPassword: async ({ user, url }) => {
-			await sendMail(resetPasswordEmail(user.email, user.name, url))
+			const locale = await getUserLocale(user.id)
+			await sendMail(resetPasswordEmail({ to: user.email, name: user.name, url, locale }))
 		},
 		// Регистрация на уже занятую почту не возвращает ошибку (чтобы нельзя было перебором узнать,
 		// кто зарегистрирован) — вместо этого предупреждаем владельца почты
 		onExistingUserSignUp: async ({ user }) => {
-			await sendMail(
-				existingAccountEmail(user.email, user.name, `${process.env.BETTER_AUTH_URL}/profile`),
-			)
+			const locale = await getUserLocale(user.id)
+			const url = `${process.env.BETTER_AUTH_URL}/profile`
+			await sendMail(existingAccountEmail({ to: user.email, name: user.name, url, locale }))
 		},
 	},
 
@@ -45,7 +61,8 @@ export const auth = betterAuth({
 		sendOnSignIn: true,
 		autoSignInAfterVerification: true,
 		sendVerificationEmail: async ({ user, url }) => {
-			await sendMail(verificationEmail(user.email, user.name, url))
+			const locale = await getUserLocale(user.id)
+			await sendMail(verificationEmail({ to: user.email, name: user.name, url, locale }))
 		},
 	},
 

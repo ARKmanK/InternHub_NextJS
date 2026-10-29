@@ -1,5 +1,6 @@
 import 'server-only'
-import { headers } from 'next/headers'
+import { cookies, headers } from 'next/headers'
+import { defaultLocale, isLocale, LOCALE_COOKIE } from '@/shared/i18n'
 import { db } from '../db'
 import { auth } from './auth'
 
@@ -10,9 +11,11 @@ export type SignUpResult =
 	| { status: 'existing' }
 
 /**
- * Регистрация через Better Auth. При включённом подтверждении почты на занятый адрес Better Auth
- * возвращает «синтетического» пользователя с выдуманным id, которого нет в базе. Отличаем этот случай
- * проверкой по базе, чтобы не создавать профиль для несуществующего пользователя.
+ * Регистрация через Better Auth. Язык берётся из текущей куки — письмо подтверждения придёт на нём же.
+ *
+ * При включённом подтверждении почты на занятый адрес Better Auth возвращает «синтетического» пользователя
+ * с выдуманным id, которого нет в базе. Отличаем этот случай проверкой по базе,
+ * чтобы не создавать профиль для несуществующего пользователя.
  */
 export async function signUpWithEmail(data: {
 	name: string
@@ -20,7 +23,13 @@ export async function signUpWithEmail(data: {
 	password: string
 	callbackURL: string
 }): Promise<SignUpResult> {
-	const result = await auth.api.signUpEmail({ body: data, headers: await headers() })
+	const cookieLocale = (await cookies()).get(LOCALE_COOKIE)?.value
+	const locale = isLocale(cookieLocale) ? cookieLocale : defaultLocale
+
+	const result = await auth.api.signUpEmail({
+		body: { ...data, locale },
+		headers: await headers(),
+	})
 
 	const exists = await db.user.findUnique({ where: { id: result.user.id }, select: { id: true } })
 	return exists ? { status: 'created', userId: exists.id } : { status: 'existing' }

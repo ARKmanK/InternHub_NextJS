@@ -16,10 +16,10 @@ const decisionToStatus = {
 	reject: SubmissionStatus.REJECTED,
 } as const
 
-const notificationTitle = {
-	accept: 'Решение принято',
-	request_changes: 'Решение возвращено на доработку',
-	reject: 'Решение отклонено',
+const notificationType = {
+	accept: 'SOLUTION_ACCEPTED',
+	request_changes: 'SOLUTION_CHANGES_REQUESTED',
+	reject: 'SOLUTION_REJECTED',
 } as const
 
 /**
@@ -70,8 +70,9 @@ export async function reviewSubmissionAction(
 			await notifyUsers(
 				[submission.studentId],
 				{
-					title: notificationTitle[decision],
-					body: text ? `«${task.title}»: ${text}` : `«${task.title}»`,
+					type: notificationType[decision],
+					// Комментарий проверяющего — это текст пользователя, он не переводится и хранится как есть
+					params: { taskTitle: task.title, ...(text && { comment: text }) },
 					link: routes.task(task.id),
 				},
 				tx,

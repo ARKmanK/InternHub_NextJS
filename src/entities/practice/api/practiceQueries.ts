@@ -27,7 +27,7 @@ const practiceSelect = {
 	description: true,
 	startsAt: true,
 	endsAt: true,
-	teacher: { select: { name: true } },
+	teacher: { select: { id: true, name: true } },
 	_count: { select: { students: true, tasks: true } },
 } satisfies Prisma.PracticeSelect
 
@@ -41,6 +41,7 @@ const toPracticeDto = (row: PracticeRow): IPractice => ({
 	description: row.description,
 	startsAt: toDate(row.startsAt),
 	endsAt: toDate(row.endsAt),
+	teacherId: row.teacher.id,
 	teacherName: row.teacher.name,
 	studentCount: row._count.students,
 	taskCount: row._count.tasks,

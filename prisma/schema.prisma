@@ -66,6 +66,8 @@ model User {
   verifiedOrgs      Organization[]           @relation("OrganizationVerifier")
   practicesTaught   Practice[]               @relation("PracticeTeacher")
   practices         PracticeStudent[]
+  conversations     ConversationMember[]
+  messages          Message[]
 
   @@map("users")
 }
@@ -513,4 +515,53 @@ model PracticeTask {
   @@id([practiceId, taskId])
   @@index([taskId])
   @@map("practice_tasks")
+}
+
+// ─── Чаты ────────────────────────────────────────────────────────────────────
+
+/// Переписка. Участники — в conversation_members, поэтому модель подходит и для
+/// групповых чатов; сейчас в интерфейсе только личные (два участника).
+model Conversation {
+  id            Int       @id @default(autoincrement())
+  /// Для личной переписки — id двух участников по порядку через «:».
+  /// Уникальность гарантирует один чат на пару даже при одновременном создании.
+  directKey     String?   @unique @map("direct_key")
+  /// Время последнего сообщения: по нему сортируется список чатов
+  lastMessageAt DateTime? @map("last_message_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  members  ConversationMember[]
+  messages Message[]
+
+  @@map("conversations")
+}
+
+model ConversationMember {
+  conversationId Int       @map("conversation_id")
+  userId         String    @map("user_id")
+  /// До какого момента участник прочитал переписку — непрочитанные считаются от него
+  lastReadAt     DateTime? @map("last_read_at")
+  joinedAt       DateTime  @default(now()) @map("joined_at")
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([conversationId, userId])
+  @@index([userId])
+  @@map("conversation_members")
+}
+
+model Message {
+  id             Int      @id @default(autoincrement())
+  conversationId Int      @map("conversation_id")
+  authorId       String   @map("author_id")
+  text           String   @db.VarChar(4000)
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  author       User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  // История переписки: сообщения одного чата по порядку, постранично «раньше»
+  @@index([conversationId, id])
+  @@map("messages")
 }

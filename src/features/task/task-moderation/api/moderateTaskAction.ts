@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { db, TaskStatus } from '@/shared/api'
+import { db, TaskStatus, transaction } from '@/shared/api'
 import { routes } from '@/shared/config'
 import type { ActionResult } from '@/shared/lib/actionResult'
 import { notifyUsers } from '@/entities/notification/index.server'
@@ -35,7 +35,7 @@ export async function moderateTaskAction(
 
 	const approved = decision === 'approve'
 
-	const changed = await db.$transaction(async tx => {
+	const changed = await transaction(async tx => {
 		const ok = await changeTaskStatus(tx, {
 			taskId,
 			from: TaskStatus.MODERATION,

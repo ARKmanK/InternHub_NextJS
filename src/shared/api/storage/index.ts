@@ -1,2 +1,3 @@
-export { storage, saveUpload, type FileStorage } from './storage'
+export { storage, saveUpload } from './storage'
+export type { FileStorage } from './types'
 export { fileResponse } from './fileResponse'

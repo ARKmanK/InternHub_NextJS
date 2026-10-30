@@ -1,49 +1,58 @@
 import 'server-only'
 import { randomUUID } from 'node:crypto'
-import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises'
-import { dirname, extname, resolve, sep } from 'node:path'
+import { extname } from 'node:path'
+import { createLocalStorage } from './localStorage'
+import { createS3Storage } from './s3Storage'
+import type { FileStorage } from './types'
 
 /**
- * Хранилище файлов: архивы с материалами заданий, архивы и скриншоты решений.
+ * Драйвер выбирается переменной STORAGE_DRIVER: `local` (по умолчанию, папка STORAGE_DIR)
+ * или `s3` (переменные S3_*). Код приложения работает только с интерфейсом FileStorage.
  *
- * В базе хранится только ключ (`tasks/12/3f1c….zip`), сам файл — здесь. Наружу файлы не раздаются
- * напрямую: скачивание идёт через route handler, который сначала проверяет права (требование S-5).
- *
- * Сейчас реализован локальный драйвер (папка на диске) — для разработки и одного сервера.
- * TODO(этап 7): S3-совместимый драйвер с тем же интерфейсом для production (выбор по переменной окружения).
+ * Наружу файлы напрямую не раздаются: скачивание идёт через route handler,
+ * который сначала проверяет права (требование S-5).
  */
-export interface FileStorage {
-	put(key: string, data: Uint8Array): Promise<void>
-	get(key: string): Promise<Uint8Array | null>
-	delete(key: string): Promise<void>
+function createStorage(): FileStorage {
+	const driver = process.env.STORAGE_DRIVER ?? 'local'
+	if (driver === 'local') return createLocalStorage(process.env.STORAGE_DIR ?? '.storage')
+	if (driver !== 's3') throw new Error(`Неизвестный STORAGE_DRIVER: ${driver}`)
+
+	const required = [
+		'S3_ENDPOINT',
+		'S3_REGION',
+		'S3_BUCKET',
+		'S3_ACCESS_KEY_ID',
+		'S3_SECRET_ACCESS_KEY',
+	]
+	const missing = required.filter(name => !process.env[name])
+	if (missing.length > 0) throw new Error(`Для STORAGE_DRIVER=s3 не заданы: ${missing.join(', ')}`)
+
+	return createS3Storage({
+		endpoint: process.env.S3_ENDPOINT!,
+		region: process.env.S3_REGION!,
+		bucket: process.env.S3_BUCKET!,
+		accessKeyId: process.env.S3_ACCESS_KEY_ID!,
+		secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!,
+	})
 }
 
-const STORAGE_DIR = resolve(process.cwd(), process.env.STORAGE_DIR ?? '.storage')
+let instance: FileStorage | undefined
+// Драйвер создаётся при первом обращении, а не при импорте: сборке (next build) ключи S3 не нужны
+const current = () => (instance ??= createStorage())
 
-/** Путь внутри папки хранилища. Ключи генерирует сервер, но проверяем, что `..` не выведет за её пределы. */
-const toPath = (key: string) => {
-	const path = resolve(STORAGE_DIR, key)
-	if (!path.startsWith(STORAGE_DIR + sep)) throw new Error(`Недопустимый ключ файла: ${key}`)
-	return path
-}
-
-const localStorage: FileStorage = {
-	async put(key, data) {
-		const path = toPath(key)
-		await mkdir(dirname(path), { recursive: true })
-		await writeFile(path, data)
-	},
-	async get(key) {
-		const path = toPath(key)
-		const exists = await stat(path).catch(() => null)
-		return exists?.isFile() ? new Uint8Array(await readFile(path)) : null
-	},
-	async delete(key) {
-		await rm(toPath(key), { force: true })
+export const storage: FileStorage = {
+	put: (key, data, contentType) => current().put(key, data, contentType),
+	get: key => current().get(key),
+	delete: key => current().delete(key),
+	getDownloadUrl: (key, download) => {
+		const driver = current()
+		if (!driver.getDownloadUrl) throw new Error('Драйвер не выдаёт ссылки на скачивание')
+		return driver.getDownloadUrl(key, download)
 	},
 }
 
-export const storage: FileStorage = localStorage
+/** Умеет ли текущий драйвер отдавать файлы ссылкой (S3), или их нужно пропускать через приложение. */
+export const supportsDownloadUrl = () => Boolean(current().getDownloadUrl)
 
 /**
  * Сохраняет загруженный файл под новым ключом и возвращает ключ.
@@ -51,6 +60,6 @@ export const storage: FileStorage = localStorage
  */
 export async function saveUpload(file: File, prefix: string): Promise<string> {
 	const key = `${prefix}/${randomUUID()}${extname(file.name).toLowerCase()}`
-	await storage.put(key, new Uint8Array(await file.arrayBuffer()))
+	await storage.put(key, new Uint8Array(await file.arrayBuffer()), file.type || undefined)
 	return key
 }

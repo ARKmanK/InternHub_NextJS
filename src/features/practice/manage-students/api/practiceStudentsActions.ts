@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { db, UserRole, type Prisma } from '@/shared/api'
+import { db, UserRole, type Prisma, transaction } from '@/shared/api'
 import { routes } from '@/shared/config'
 import type { ActionResult } from '@/shared/lib/actionResult'
 import { notifyUsers } from '@/entities/notification/index.server'
@@ -49,7 +49,7 @@ export async function addStudentsAction(
 	if (candidates.length === 0) return { ok: true, data: { added: 0 } }
 
 	const studentIds = candidates.map(student => student.id)
-	await db.$transaction(async tx => {
+	await transaction(async tx => {
 		await tx.practiceStudent.createMany({
 			data: studentIds.map(studentId => ({ practiceId, studentId })),
 			skipDuplicates: true,

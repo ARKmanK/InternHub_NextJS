@@ -8,6 +8,7 @@ import { Button } from '@/shared/ui/button'
 import { TaskCard } from '@/entities/task'
 import { getTaskById } from '@/entities/task/index.server'
 import { getCurrentUser } from '@/entities/user/index.server'
+import { WriteMessageButton } from '@/features/chat/start-conversation'
 import { CloseTaskButton } from '@/features/task/close-task'
 import { TaskDeleteDialog } from '@/features/task/task-delete'
 import { ModerationActions } from '@/features/task/task-moderation'
@@ -52,6 +53,8 @@ export async function TaskPage({ id }: { id: number }) {
 			<div className='flex flex-wrap items-center justify-between gap-2'>
 				<BackButton />
 				<div className='flex flex-wrap gap-2'>
+					{/* Вопрос по заданию — напрямую автору */}
+					{user && !isOwner && <WriteMessageButton peerId={task.authorId} />}
 					{task.hasArchive && (
 						<Button asChild variant='outline' size='sm'>
 							<a href={routes.taskArchive(task.id)}>

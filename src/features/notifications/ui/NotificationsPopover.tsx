@@ -18,13 +18,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
 import { ScrollArea } from '@/shared/ui/scroll-area'
 import { useNotificationText, type INotification } from '@/entities/notification'
 import { markNotificationReadAction } from '../api/markNotificationReadAction'
-import { useNotificationsPolling } from '../model/useNotificationsPolling'
+import { useLiveNotifications } from '../model/useLiveNotifications'
 
 export function NotificationsPopover({ notifications }: { notifications: INotification[] }) {
 	const t = useTranslations('Notifications')
 	const tCommon = useTranslations('Common')
 	const [isPending, startTransition] = useTransition()
-	const { notifications: visible, remove } = useNotificationsPolling(notifications)
+	const { notifications: visible, remove } = useLiveNotifications(notifications)
 
 	const markRead = (id: number) =>
 		startTransition(async () => {

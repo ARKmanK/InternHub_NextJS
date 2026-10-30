@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server'
 import { routes } from '@/shared/config'
 import { PracticeCard, PracticeGradeBadge, type IStudentPractice } from '@/entities/practice'
 import { SubmissionStatusBadge } from '@/entities/submission'
+import { WriteMessageButton } from '@/features/chat/start-conversation'
 
 /** Практики студента: задания со своими статусами и итоговая оценка преподавателя. */
 export async function StudentPractices({ practices }: { practices: IStudentPractice[] }) {
@@ -15,7 +16,12 @@ export async function StudentPractices({ practices }: { practices: IStudentPract
 				<PracticeCard
 					key={practice.id}
 					practice={practice}
-					action={<PracticeGradeBadge grade={grade} />}
+					action={
+						<div className='flex items-center gap-2'>
+							<PracticeGradeBadge grade={grade} />
+							<WriteMessageButton peerId={practice.teacherId} peerName={practice.teacherName} />
+						</div>
+					}
 				>
 					{gradeComment && <p className='text-sm'>{gradeComment}</p>}
 					{tasks.length > 0 && (

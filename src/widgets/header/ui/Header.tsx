@@ -3,9 +3,11 @@ import { getTranslations } from 'next-intl/server'
 import { GraduationCap, Plus, User } from 'lucide-react'
 import { routes } from '@/shared/config'
 import { Button } from '@/shared/ui/button'
+import { getUnreadMessagesCount } from '@/entities/conversation/index.server'
 import { getUnreadNotifications } from '@/entities/notification/index.server'
 import { getCurrentUser } from '@/entities/user/index.server'
 import { LogoutButton } from '@/features/auth/logout'
+import { MessagesLink } from '@/features/chat/unread-messages'
 import { LangSwitch } from '@/features/lang-switch'
 import { NotificationsPopover } from '@/features/notifications'
 import { ThemeToggle } from '@/features/theme-toggle'
@@ -13,7 +15,9 @@ import { ThemeToggle } from '@/features/theme-toggle'
 export async function Header() {
 	const t = await getTranslations('Header')
 	const user = await getCurrentUser()
-	const notifications = user ? await getUnreadNotifications(user.id) : []
+	const [notifications, unreadMessages] = user
+		? await Promise.all([getUnreadNotifications(user.id), getUnreadMessagesCount(user.id)])
+		: [[], 0]
 
 	return (
 		<header className='sticky top-0 z-40 border-b bg-background/80 backdrop-blur'>
@@ -34,6 +38,7 @@ export async function Header() {
 							</Link>
 						</Button>
 					)}
+					{user && <MessagesLink currentUserId={user.id} unreadCount={unreadMessages} />}
 					{user && <NotificationsPopover notifications={notifications} />}
 					<LangSwitch />
 					<ThemeToggle />

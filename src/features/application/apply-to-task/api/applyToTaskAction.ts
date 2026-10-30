@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { ApplicationStatus, db, TaskStatus } from '@/shared/api'
+import { ApplicationStatus, db, TaskStatus, transaction } from '@/shared/api'
 import { routes } from '@/shared/config'
 import type { ActionResult } from '@/shared/lib/actionResult'
 import { notifyUsers } from '@/entities/notification/index.server'
@@ -30,7 +30,7 @@ export async function applyToTaskAction(taskId: number, message: string): Promis
 		return { ok: false, error: 'invalidData' }
 	}
 
-	await db.$transaction(async tx => {
+	await transaction(async tx => {
 		await tx.application.upsert({
 			where: { taskId_studentId: { taskId, studentId: user.id } },
 			create: { taskId, studentId: user.id, message: text || null },

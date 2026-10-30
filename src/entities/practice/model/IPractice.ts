@@ -10,6 +10,7 @@ export interface IPractice {
 	/** Даты без времени, ISO yyyy-mm-dd */
 	startsAt: string
 	endsAt: string
+	teacherId: string
 	teacherName: string
 	studentCount: number
 	taskCount: number

@@ -1,6 +1,7 @@
 import { commonTranslations, validationTranslations, type Locale } from '@/shared/i18n'
 import { translations as applicationStatus } from '@/entities/application'
 import { translations as competency } from '@/entities/competency'
+import { translations as conversation } from '@/entities/conversation'
 import { translations as notificationText } from '@/entities/notification'
 import { translations as organizationCard } from '@/entities/organization'
 import { translations as practice } from '@/entities/practice'
@@ -12,6 +13,9 @@ import { translations as taskCard } from '@/entities/task'
 import { translations as inviteTeacher } from '@/features/admin/invite-teacher'
 import { translations as applyToTask } from '@/features/application/apply-to-task'
 import { translations as reviewApplication } from '@/features/application/review-application'
+import { translations as sendMessage } from '@/features/chat/send-message'
+import { translations as startConversation } from '@/features/chat/start-conversation'
+import { translations as unreadMessages } from '@/features/chat/unread-messages'
 import { translations as loginForm } from '@/features/auth/login'
 import { translations as logoutButton } from '@/features/auth/logout'
 import { translations as registerEmployerForm } from '@/features/auth/register-employer'
@@ -36,11 +40,14 @@ import { translations as taskModeration } from '@/features/task/task-moderation'
 import { translations as favoriteButton } from '@/features/task/toggle-favorite'
 import { translations as themeToggle } from '@/features/theme-toggle'
 import { translations as homePage } from '@/pages/home'
+import { translations as messagesPage } from '@/pages/messages'
 import { translations as notFoundPage } from '@/pages/not-found'
 import { translations as practicePage } from '@/pages/practice'
 import { translations as studentPortfolioPage } from '@/pages/student-portfolio'
 import { translations as taskPage } from '@/pages/task'
 import { translations as authPanel } from '@/widgets/auth-panel'
+import { translations as chatThread } from '@/widgets/chat-thread'
+import { translations as conversationList } from '@/widgets/conversation-list'
 import { translations as footer } from '@/widgets/footer'
 import { translations as header } from '@/widgets/header'
 import { translations as practiceProgress } from '@/widgets/practice-progress'
@@ -64,6 +71,7 @@ const registry = {
 	// entities
 	ApplicationStatus: applicationStatus,
 	Competency: competency,
+	Conversation: conversation,
 	NotificationText: notificationText,
 	OrganizationCard: organizationCard,
 	Practice: practice,
@@ -92,6 +100,9 @@ const registry = {
 	FavoriteButton: favoriteButton,
 	InviteTeacher: inviteTeacher,
 	EditInterests: editInterests,
+	StartConversation: startConversation,
+	SendMessage: sendMessage,
+	UnreadMessages: unreadMessages,
 	PracticeForm: practiceForm,
 	ManageStudents: manageStudents,
 	ManageTasks: manageTasks,
@@ -107,10 +118,13 @@ const registry = {
 	TaskParticipation: taskParticipation,
 	ProfileDashboards: profileDashboards,
 	PracticeProgress: practiceProgress,
+	ConversationList: conversationList,
+	ChatThread: chatThread,
 	// pages
 	HomePage: homePage,
 	NotFoundPage: notFoundPage,
 	PracticePage: practicePage,
+	MessagesPage: messagesPage,
 	StudentPortfolioPage: studentPortfolioPage,
 	TaskPage: taskPage,
 } as const

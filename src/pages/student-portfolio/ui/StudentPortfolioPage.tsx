@@ -6,6 +6,7 @@ import { Empty, EmptyHeader, EmptyMedia, EmptyTitle } from '@/shared/ui/empty'
 import { CompetencyProfile } from '@/entities/competency'
 import { getStudentCompetencies } from '@/entities/competency/index.server'
 import { PortfolioCard } from '@/entities/submission'
+import { WriteMessageButton } from '@/features/chat/start-conversation'
 import { getPortfolio } from '@/entities/submission/index.server'
 import { getCurrentUser, getStudentProfile } from '@/entities/user/index.server'
 
@@ -43,7 +44,12 @@ export async function StudentPortfolioPage({ studentId }: { studentId: string })
 				<BackButton />
 			</div>
 			<header className='flex flex-col gap-1'>
-				<h1 className='text-2xl font-semibold'>{student.name}</h1>
+				<div className='flex flex-wrap items-center justify-between gap-2'>
+					<h1 className='text-2xl font-semibold'>{student.name}</h1>
+					{viewer.id !== studentId && (
+						<WriteMessageButton peerId={studentId} peerName={student.name} />
+					)}
+				</div>
 				<p className='text-muted-foreground'>
 					{t('groupCourse', { group: student.group, course: student.course })}
 				</p>

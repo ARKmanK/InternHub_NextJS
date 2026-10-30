@@ -1,7 +1,15 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { db, IpTerms, saveUpload, storage, TaskStatus, type Prisma } from '@/shared/api'
+import {
+	db,
+	IpTerms,
+	saveUpload,
+	storage,
+	TaskStatus,
+	type Prisma,
+	transaction,
+} from '@/shared/api'
 import { routes } from '@/shared/config'
 import type { ActionResult } from '@/shared/lib/actionResult'
 import { taskFormSchema, type TaskFormValues } from '@/entities/task'
@@ -71,7 +79,7 @@ export async function createTaskAction(formData: FormData): Promise<ActionResult
 	const archiveKey = values.archive ? await saveUpload(values.archive, 'tasks') : null
 
 	try {
-		const task = await db.$transaction(async tx => {
+		const task = await transaction(async tx => {
 			const created = await tx.task.create({
 				data: {
 					...toTaskData(values),
@@ -138,7 +146,7 @@ export async function updateTaskAction(
 	const newArchiveKey = values.archive ? await saveUpload(values.archive, 'tasks') : null
 
 	try {
-		await db.$transaction(async tx => {
+		await transaction(async tx => {
 			await tx.task.update({
 				where: { id: taskId },
 				data: {

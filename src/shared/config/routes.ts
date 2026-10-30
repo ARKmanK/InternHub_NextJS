@@ -12,6 +12,8 @@ export const routes = {
 	practice: (id: number) => `/practices/${id}`,
 	practiceEdit: (id: number) => `/practices/${id}/edit`,
 	practiceReport: (id: number) => `/api/practices/${id}/report`,
+	messages: () => '/messages',
+	conversation: (id: number) => `/messages/${id}`,
 	forgotPassword: () => '/forgot-password',
 	resetPassword: () => '/reset-password',
 } as const

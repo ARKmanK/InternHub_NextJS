@@ -2,20 +2,7 @@ import 'server-only'
 import { getTranslations } from 'next-intl/server'
 import { getPracticeProgress } from '@/entities/practice/index.server'
 import type { IUser } from '@/entities/user'
-
-// Excel в русской локали ждёт «;», а BOM нужен, чтобы он распознал UTF-8
-const SEPARATOR = ';'
-const BOM = '﻿'
-
-/**
- * Ячейка CSV: в кавычках, кавычки удваиваются. Значения, начинающиеся с = + - @,
- * экранируются апострофом — иначе Excel выполнит их как формулу (CSV injection).
- */
-const cell = (value: string | number) => {
-	const text = String(value)
-	const safe = /^[=+\-@\t\r]/.test(text) ? `'${text}` : text
-	return `"${safe.replaceAll('"', '""')}"`
-}
+import { toCsv } from '../lib/csv'
 
 /** Ведомость практики: студенты × задания, итоговая оценка. null — практика не своя или не найдена. */
 export async function buildPracticeReport(practiceId: number, user: IUser | null) {
@@ -52,6 +39,5 @@ export async function buildPracticeReport(practiceId: number, user: IUser | null
 		student.gradeComment ?? '',
 	])
 
-	const csv = [header, ...rows].map(row => row.map(cell).join(SEPARATOR)).join('\r\n')
-	return { csv: BOM + csv, fileName: `practice-${practiceId}.csv` }
+	return { csv: toCsv([header, ...rows]), fileName: `practice-${practiceId}.csv` }
 }

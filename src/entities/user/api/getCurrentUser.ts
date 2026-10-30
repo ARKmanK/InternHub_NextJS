@@ -1,14 +1,8 @@
 import { cache } from 'react'
 import { headers } from 'next/headers'
-import { auth, db, OrganizationStatus, UserRole } from '@/shared/api'
+import { auth, db, OrganizationStatus } from '@/shared/api'
 import type { IUser } from '../model/IUser'
-
-const roleToDto = {
-	[UserRole.STUDENT]: 'student',
-	[UserRole.EMPLOYER]: 'employer',
-	[UserRole.TEACHER]: 'teacher',
-	[UserRole.ADMIN]: 'admin',
-} as const satisfies Record<UserRole, IUser['role']>
+import { roleToDto } from './roleToDto'
 
 const organizationStatusToDto = {
 	[OrganizationStatus.PENDING]: 'pending',

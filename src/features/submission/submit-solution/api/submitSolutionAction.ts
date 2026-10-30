@@ -9,6 +9,7 @@ import {
 	SubmissionFileKind,
 	SubmissionStatus,
 	TaskStatus,
+	transaction,
 } from '@/shared/api'
 import { routes } from '@/shared/config'
 import type { ActionResult } from '@/shared/lib/actionResult'
@@ -100,7 +101,7 @@ export async function submitSolutionAction(
 	}
 
 	try {
-		await db.$transaction(async tx => {
+		await transaction(async tx => {
 			let submissionId: number
 
 			if (existing) {

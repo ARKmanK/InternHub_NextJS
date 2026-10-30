@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { db, PracticeGrade } from '@/shared/api'
+import { PracticeGrade, transaction } from '@/shared/api'
 import { routes } from '@/shared/config'
 import type { ActionResult } from '@/shared/lib/actionResult'
 import { notifyUsers } from '@/entities/notification/index.server'
@@ -32,7 +32,7 @@ export async function gradeStudentAction(
 	const text = comment.trim()
 	if (!(grade in gradeFromDto) || text.length > 2000) return { ok: false, error: 'invalidData' }
 
-	const changed = await db.$transaction(async tx => {
+	const changed = await transaction(async tx => {
 		const { count } = await tx.practiceStudent.updateMany({
 			where: { practiceId, studentId },
 			data: { grade: gradeFromDto[grade], gradeComment: text || null, gradedAt: new Date() },

@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { ApplicationStatus, db, TaskStatus } from '@/shared/api'
+import { ApplicationStatus, db, TaskStatus, transaction } from '@/shared/api'
 import { routes } from '@/shared/config'
 import type { ActionResult } from '@/shared/lib/actionResult'
 import { notifyUsers } from '@/entities/notification/index.server'
@@ -36,7 +36,7 @@ export async function reviewApplicationAction(
 	const accept = decision === 'accept'
 	if (accept && task.status !== TaskStatus.PUBLISHED) return { ok: false, error: 'invalidData' }
 
-	const result = await db.$transaction(async tx => {
+	const result = await transaction(async tx => {
 		if (accept && task.maxParticipants !== null) {
 			const accepted = await tx.application.count({
 				where: { taskId: task.id, status: ApplicationStatus.ACCEPTED },

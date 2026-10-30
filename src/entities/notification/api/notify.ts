@@ -1,4 +1,4 @@
-import { db, UserRole, type Prisma } from '@/shared/api'
+import { afterCommit, db, publish, UserRole, type Prisma } from '@/shared/api'
 import type { NotificationParams, NotificationType } from '../model/INotification'
 
 type NotificationEvent = {
@@ -11,6 +11,7 @@ type NotificationEvent = {
  * Создаёт уведомление каждому из пользователей. Сохраняются тип и параметры, а не текст:
  * текст соберётся при показе на языке получателя.
  * Можно передать транзакцию, чтобы уведомление создалось вместе с действием.
+ * Открытые вкладки получателей узнают о нём через realtime — уже после коммита (см. transaction()).
  */
 export async function notifyUsers(
 	userIds: string[],
@@ -21,6 +22,7 @@ export async function notifyUsers(
 	await client.notification.createMany({
 		data: userIds.map(userId => ({ userId, type, params, link: link ?? null })),
 	})
+	afterCommit(client, () => publish(userIds, { type: 'notification' }))
 }
 
 /** Уведомление всем администраторам (новое задание на модерации и т.п.). */

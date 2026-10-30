@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { getLocale } from 'next-intl/server'
+import { getCurrentUser } from '@/entities/user/index.server'
 import { Footer } from '@/widgets/footer'
 import { Header } from '@/widgets/header'
 import { AppProviders } from './AppProviders'
@@ -16,7 +17,7 @@ export const rootMetadata: Metadata = {
 }
 
 export async function RootLayout({ children }: { children: ReactNode }) {
-	const locale = await getLocale()
+	const [locale, user] = await Promise.all([getLocale(), getCurrentUser()])
 
 	return (
 		// Переменные шрифтов — на <html>: font-sans применяется к нему (globals.css), и переменная должна быть видна там
@@ -26,7 +27,7 @@ export async function RootLayout({ children }: { children: ReactNode }) {
 			suppressHydrationWarning
 		>
 			<body className='antialiased'>
-				<AppProviders>
+				<AppProviders userId={user?.id ?? null}>
 					<div className='flex min-h-screen flex-col'>
 						<Header />
 						<main className='mx-auto w-full max-w-6xl flex-1 px-4 py-8'>{children}</main>

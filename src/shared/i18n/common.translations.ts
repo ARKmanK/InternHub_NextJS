@@ -19,6 +19,7 @@ const en = {
 	invalidToken: 'The link is invalid or expired. Request a new one',
 	noSlots: 'All places for this task are taken',
 	userExists: 'A user with this email already exists',
+	userNotFound: 'No user with this email',
 	checkEmailTitle: 'Check your email',
 	checkEmailDescription:
 		'We sent a link to {email}. Follow it to continue. If the email is not there, check the Spam folder',
@@ -42,6 +43,7 @@ const ru = {
 	invalidToken: 'Ссылка недействительна или устарела. Запросите новую',
 	noSlots: 'Все места на эту задачу уже заняты',
 	userExists: 'Пользователь с такой почтой уже есть',
+	userNotFound: 'Пользователь с такой почтой не найден',
 	checkEmailTitle: 'Проверьте почту',
 	checkEmailDescription:
 		'Мы отправили ссылку на {email}. Перейдите по ней, чтобы продолжить. Если письма нет — загляните в «Спам»',

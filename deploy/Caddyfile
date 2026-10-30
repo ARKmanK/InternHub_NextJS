@@ -1,0 +1,27 @@
+# Caddy сам получает и продлевает сертификат Let's Encrypt для домена
+{$DOMAIN} {
+	encode zstd gzip
+
+	# WebSocket realtime-сервера; Caddy проксирует Upgrade без дополнительной настройки
+	handle /ws {
+		reverse_proxy realtime:3001
+	}
+
+	# /publish realtime-сервера наружу не открыт: приложение обращается к нему по внутренней сети
+	handle {
+		reverse_proxy app:3000
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		X-Frame-Options "DENY"
+		-Server
+	}
+
+	# Загрузка архивов до 50 МБ (+ поля формы)
+	request_body {
+		max_size 55MB
+	}
+}

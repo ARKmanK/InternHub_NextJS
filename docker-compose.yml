@@ -1,0 +1,64 @@
+# Production на одном сервере (VPS): docker compose up -d --build
+# Настройки — в .env рядом с этим файлом (шаблон: .env.production.example). Подробно — docs/05-deployment.md.
+# Тот же .env compose читает для подстановок ${...} ниже (POSTGRES_PASSWORD, DOMAIN).
+#
+#   интернет ──443──▶ caddy ──┬──▶ app:3000       (Next.js)
+#                             └──▶ realtime:3001  (/ws — WebSocket)
+#   app ──▶ postgres:5432, app ──▶ realtime:3001/publish (внутренняя сеть), app ──▶ S3 (Timeweb)
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: internhub
+      POSTGRES_USER: internhub
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?задайте POSTGRES_PASSWORD в .env}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U internhub -d internhub']
+      interval: 5s
+      retries: 10
+
+  # Применяет миграции и завершается; app стартует только после успеха
+  migrate:
+    build: { context: ., target: migrator }
+    env_file: .env
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: 'no'
+
+  app:
+    build: { context: ., target: app }
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      realtime: { condition: service_started }
+    # Если STORAGE_DRIVER=local — файлы на томе; с S3 том не используется
+    volumes:
+      - storage:/app/.storage
+
+  realtime:
+    build: { context: ., target: realtime }
+    restart: unless-stopped
+    env_file: .env
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      DOMAIN: ${DOMAIN:?задайте DOMAIN в .env}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    depends_on: [app, realtime]
+
+volumes:
+  postgres-data:
+  storage:
+  caddy-data:

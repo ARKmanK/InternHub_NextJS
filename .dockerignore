@@ -1,0 +1,17 @@
+# В образ не попадают зависимости и сборки с машины разработчика — они собираются внутри
+node_modules
+.next
+coverage
+*.tsbuildinfo
+
+# Секреты и локальные данные
+.env*
+!.env.example
+.storage
+
+# Не нужны для сборки
+.git
+.github
+.vscode
+docs
+Todo.txt

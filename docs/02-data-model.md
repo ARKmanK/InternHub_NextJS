@@ -32,6 +32,10 @@ erDiagram
     User ||--o{ PracticeStudent : ""
     Practice ||--o{ PracticeTask : "задания"
     Task ||--o{ PracticeTask : ""
+    Conversation ||--o{ ConversationMember : "участники"
+    User ||--o{ ConversationMember : ""
+    Conversation ||--o{ Message : "сообщения"
+    User ||--o{ Message : "автор"
     User ||--o{ Notification : ""
     User ||--o{ Session : ""
     User ||--o{ Account : ""
@@ -146,6 +150,22 @@ erDiagram
         int practiceId PK
         int taskId PK
     }
+    Conversation {
+        int id PK
+        string directKey UK
+        datetime lastMessageAt
+    }
+    ConversationMember {
+        int conversationId PK
+        string userId PK
+        datetime lastReadAt
+    }
+    Message {
+        int id PK
+        int conversationId FK
+        string authorId FK
+        string text
+    }
     Notification {
         int id PK
         string userId FK
@@ -200,6 +220,8 @@ stateDiagram-v2
 | Индекс `(status, published_at DESC)`                   | основной запрос ленты: опубликованные, новые сверху (N-1)                  |
 | Строковые id пользователей                             | формат Better Auth; остальные сущности — числовые автоинкрементные id      |
 | snake_case в БД, camelCase в коде (`@map`)             | принятый стиль PostgreSQL, при этом TypeScript-код выглядит привычно       |
+| Личный чат — уникальный `direct_key`                   | один чат на пару, даже если оба начали переписку одновременно              |
+| Непрочитанные — от `last_read_at` участника            | не нужен флаг «прочитано» на каждом сообщении                              |
 | Даты практики — тип `DATE`                             | это календарные дни, без времени и часового пояса                          |
 | Результат студента в практике не хранится отдельно     | статус и оценка по заданию берутся из `submissions` — нет рассинхронизации |
 
